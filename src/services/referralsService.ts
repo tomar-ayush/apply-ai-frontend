@@ -14,4 +14,7 @@ export const referralsService = {
     const { data } = await apiClient.patch<ReferralResponse>(`/referrals/${referralId}`, payload);
     return data;
   },
+  async remove(referralId: string): Promise<void> {
+    await apiClient.delete(`/referrals/${referralId}`);
+  },
 };

@@ -32,3 +32,13 @@ export function useUpdateReferral(jobId: string) {
     },
   });
 }
+
+export function useDeleteReferral(jobId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (referralId: string) => referralsService.remove(referralId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
+    },
+  });
+}

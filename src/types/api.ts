@@ -104,7 +104,7 @@ export interface ReferralResponse {
   name: string;
   linkedin_url: string | null;
   status: ReferralStatus;
-  priority: number | null;
+  priority: number;
   asked_at: string | null;
   responded_at: string | null;
   created_at: string;
