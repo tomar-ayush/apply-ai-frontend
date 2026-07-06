@@ -50,7 +50,14 @@ export function ReferralTable({ jobId, referrals, isLoading }: ReferralTableProp
   );
 
   const columns: DataTableColumn<ReferralResponse>[] = [
-
+    {
+      key: "priority",
+      header: "Priority",
+      sortable: true,
+      sortAccessor: (r) => r.priority ?? Number.POSITIVE_INFINITY,
+      className: "w-1 text-center",
+      render: (r) => <span className="font-mono text-muted-foreground">{r.priority ?? "—"}</span>,
+    },
     { key: "name", header: "Name", render: (r) => <span className="font-medium text-foreground">{r.name}</span> },
     {
       key: "linkedin",
