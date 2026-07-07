@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { referralsService } from "@/services/referralsService";
 import { queryKeys } from "@/queries/queryKeys";
-import type { UpdateReferralRequest } from "@/types/api";
+import type { ConnectReferralRequest, UpdateReferralRequest } from "@/types/api";
 
 export function useJobReferrals(jobId: string | undefined) {
   return useQuery({
@@ -39,6 +39,22 @@ export function useDeleteReferral(jobId: string) {
     mutationFn: (referralId: string) => referralsService.remove(referralId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
+    },
+  });
+}
+
+export function useConnectReferral(jobId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ referralId, payload }: { referralId: string; payload: ConnectReferralRequest }) =>
+      referralsService.connect(referralId, payload),
+    onSuccess: () => {
+      const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
+      // The agent processes the connection asynchronously and calls the backend back later,
+      // so poll a couple of times to pick up the eventual status change without a full poller.
+      invalidate();
+      setTimeout(invalidate, 8_000);
+      setTimeout(invalidate, 20_000);
     },
   });
 }

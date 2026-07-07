@@ -1,6 +1,6 @@
 // Hand-mirrored from ../backend/app/**/schemas.py — keep in sync manually, no codegen.
 
-import type { JobStatus, ReferralStatus, TaskStatus, TaskType, ResumeVersion } from "@/types/enums";
+import type { JobStatus, ReferralStatus, ResumeVersion } from "@/types/enums";
 
 export interface TokenResponse {
   access_token: string;
@@ -115,6 +115,17 @@ export interface UpdateReferralRequest {
   linkedin_url?: string;
 }
 
+export interface ConnectReferralRequest {
+  linkedin_url: string;
+  message: string;
+  agent_url: string;
+}
+
+export interface ConnectReferralResponse {
+  queued: boolean;
+  referral_id: string;
+}
+
 export interface GenerateReferralsResponse {
   generated: number;
   referrals: ReferralResponse[];
@@ -134,24 +145,6 @@ export interface ResumeResponse {
 
 export interface SelectResumeRequest {
   version: ResumeVersion;
-}
-
-export interface TaskResponse {
-  id: string;
-  job_id: string;
-  user_id: string;
-  task_type: TaskType;
-  payload: Record<string, unknown>;
-  status: TaskStatus;
-  error_message: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateTaskRequest {
-  job_id: string;
-  task_type: TaskType;
-  payload?: Record<string, unknown>;
 }
 
 export interface HealthResponse {

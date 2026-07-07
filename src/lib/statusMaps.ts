@@ -1,4 +1,4 @@
-import { JobStatus, ReferralStatus, TaskStatus, type JobStatus as JobStatusT, type ReferralStatus as ReferralStatusT, type TaskStatus as TaskStatusT } from "@/types/enums";
+import { JobStatus, ReferralStatus, type JobStatus as JobStatusT, type ReferralStatus as ReferralStatusT } from "@/types/enums";
 
 export interface StatusVisual {
   label: string;
@@ -41,10 +41,3 @@ export const REFERRAL_STATUS_MAP: Record<ReferralStatusT, StatusVisual> = {
   [ReferralStatus.DECLINED]: { label: "Declined", ...COLOR_FAMILIES.rose },
 };
 
-export const TASK_STATUS_MAP: Record<TaskStatusT, StatusVisual> = {
-  [TaskStatus.QUEUED]: { label: "Queued", ...COLOR_FAMILIES.amber },
-  [TaskStatus.RUNNING]: { label: "Running", ...COLOR_FAMILIES.blue },
-  [TaskStatus.WAITING_USER]: { label: "Waiting On You", ...COLOR_FAMILIES.amber },
-  [TaskStatus.COMPLETED]: { label: "Completed", ...COLOR_FAMILIES.emerald },
-  [TaskStatus.FAILED]: { label: "Failed", ...COLOR_FAMILIES.rose },
-};

@@ -1,5 +1,11 @@
 import { apiClient } from "@/services/apiClient";
-import type { GenerateReferralsResponse, ReferralResponse, UpdateReferralRequest } from "@/types/api";
+import type {
+  ConnectReferralRequest,
+  ConnectReferralResponse,
+  GenerateReferralsResponse,
+  ReferralResponse,
+  UpdateReferralRequest,
+} from "@/types/api";
 
 export const referralsService = {
   async listByJob(jobId: string): Promise<ReferralResponse[]> {
@@ -16,5 +22,9 @@ export const referralsService = {
   },
   async remove(referralId: string): Promise<void> {
     await apiClient.delete(`/referrals/${referralId}`);
+  },
+  async connect(referralId: string, payload: ConnectReferralRequest): Promise<ConnectReferralResponse> {
+    const { data } = await apiClient.post<ConnectReferralResponse>(`/referrals/${referralId}/connect`, payload);
+    return data;
   },
 };

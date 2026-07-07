@@ -12,7 +12,8 @@ import { JobTimeline } from "@/features/job-details/components/JobTimeline";
 import { JDSummaryPanel } from "@/features/job-details/components/JDSummaryPanel";
 import { ReferralTable } from "@/features/job-details/components/ReferralTable";
 import { ResumeSection } from "@/features/job-details/components/ResumeSection";
-import { AutomationTaskPanel } from "@/features/job-details/components/AutomationTaskPanel";
+import { WorkerStatusCard } from "@/features/job-details/components/WorkerStatusCard";
+import { WorkdayApplyCard } from "@/features/job-details/components/WorkdayApplyCard";
 import { useJob } from "@/queries/useJobsQueries";
 import { useJobJd } from "@/queries/useJobJdQueries";
 import { useJobReferrals } from "@/queries/useReferralsQueries";
@@ -64,30 +65,34 @@ export function JobDetailPage() {
       />
 
       <JobHeader job={job} />
+      <div className="p-6 space-y-6">
 
-      <div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-xl border border-border bg-card p-4">
-            <p className="mb-3 text-sm font-medium text-foreground">Status</p>
-            <StatusOverrideControl jobId={job.id} status={job.status} />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="mb-3 text-sm font-medium text-foreground">Status</p>
+              <StatusOverrideControl jobId={job.id} status={job.status} />
+            </div>
+
+            <JDSummaryPanel jobId={job.id} jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
           </div>
 
-          <JDSummaryPanel jobId={job.id} jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
-
+          <div className="space-y-6">
+            {referralsQuery.isError && (
+              <ErrorBanner message={getErrorMessage(referralsQuery.error, "Could not load referrals.")} onRetry={() => referralsQuery.refetch()} />
+            )}
+            <JobTimeline job={job} />
+            <WorkerStatusCard />
+            <WorkdayApplyCard job={job} />
+          </div>
+        </div>
+        <div className="flex flex-col gap-6">
           <ReferralTable jobId={job.id} referrals={referralsQuery.data ?? []} isLoading={referralsQuery.isLoading} />
 
           <ResumeSection jobId={job.id} />
-
-          <AutomationTaskPanel job={job} referrals={referralsQuery.data ?? []} />
-        </div>
-
-        <div className="space-y-6">
-          {referralsQuery.isError && (
-            <ErrorBanner message={getErrorMessage(referralsQuery.error, "Could not load referrals.")} onRetry={() => referralsQuery.refetch()} />
-          )}
-          <JobTimeline job={job} />
         </div>
       </div>
+
     </div>
   );
 }

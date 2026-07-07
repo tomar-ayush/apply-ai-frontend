@@ -1,19 +1,13 @@
-import { JOB_STATUS_MAP, REFERRAL_STATUS_MAP, TASK_STATUS_MAP } from "@/lib/statusMaps";
-import type { JobStatus, ReferralStatus, TaskStatus } from "@/types/enums";
+import { JOB_STATUS_MAP, REFERRAL_STATUS_MAP } from "@/lib/statusMaps";
+import type { JobStatus, ReferralStatus } from "@/types/enums";
 import { cn } from "@/lib/utils";
 
 type StatusBadgeProps =
   | { kind: "job"; status: JobStatus; className?: string }
-  | { kind: "referral"; status: ReferralStatus; className?: string }
-  | { kind: "task"; status: TaskStatus; className?: string };
+  | { kind: "referral"; status: ReferralStatus; className?: string };
 
 export function StatusBadge({ kind, status, className }: StatusBadgeProps) {
-  const visual =
-    kind === "job"
-      ? JOB_STATUS_MAP[status]
-      : kind === "referral"
-        ? REFERRAL_STATUS_MAP[status]
-        : TASK_STATUS_MAP[status];
+  const visual = kind === "job" ? JOB_STATUS_MAP[status] : REFERRAL_STATUS_MAP[status];
 
   return (
     <span

@@ -54,23 +54,6 @@ export const VALID_REFERRAL_TRANSITIONS: Record<ReferralStatus, ReferralStatus[]
   DECLINED: [],
 };
 
-export const TaskType = {
-  LINKEDIN_CONNECT: "LINKEDIN_CONNECT",
-  WORKDAY_APPLY: "WORKDAY_APPLY",
-} as const;
-export type TaskType = (typeof TaskType)[keyof typeof TaskType];
-
-export const TaskStatus = {
-  QUEUED: "QUEUED",
-  RUNNING: "RUNNING",
-  WAITING_USER: "WAITING_USER",
-  COMPLETED: "COMPLETED",
-  FAILED: "FAILED",
-} as const;
-export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];
-
-export const TERMINAL_TASK_STATUSES: TaskStatus[] = [TaskStatus.COMPLETED, TaskStatus.FAILED];
-
 export const LLMProvider = {
   OPENAI: "openai",
   ANTHROPIC: "anthropic",

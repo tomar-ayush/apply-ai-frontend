@@ -6,9 +6,11 @@ import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ReferralStatusSelect } from "@/features/referrals/components/ReferralStatusSelect";
 import { LinkedinUrlCell } from "@/features/referrals/components/LinkedinUrlCell";
+import { AskForReferralButton } from "@/features/referrals/components/AskForReferralButton";
 import { useDeleteReferral, useGenerateReferrals } from "@/queries/useReferralsQueries";
 import { getErrorMessage } from "@/lib/axios-error";
 import { shortDate } from "@/lib/format";
+import { ReferralStatus } from "@/types/enums";
 import type { ReferralResponse } from "@/types/api";
 
 interface ReferralTableProps {
@@ -50,14 +52,7 @@ export function ReferralTable({ jobId, referrals, isLoading }: ReferralTableProp
   );
 
   const columns: DataTableColumn<ReferralResponse>[] = [
-    {
-      key: "priority",
-      header: "Priority",
-      sortable: true,
-      sortAccessor: (r) => r.priority ?? Number.POSITIVE_INFINITY,
-      className: "w-1 text-center",
-      render: (r) => <span className="font-mono text-muted-foreground">{r.priority ?? "—"}</span>,
-    },
+
     { key: "name", header: "Name", render: (r) => <span className="font-medium text-foreground">{r.name}</span> },
     {
       key: "linkedin",
@@ -68,6 +63,14 @@ export function ReferralTable({ jobId, referrals, isLoading }: ReferralTableProp
       key: "status",
       header: "Status",
       render: (r) => <ReferralStatusSelect jobId={jobId} referralId={r.id} status={r.status} linkedinUrl={r.linkedin_url} />,
+    },
+    {
+      key: "connect",
+      header: "",
+      render: (r) =>
+        r.status === ReferralStatus.NOT_CONTACTED && r.linkedin_url ? (
+          <AskForReferralButton jobId={jobId} referralId={r.id} name={r.name} linkedinUrl={r.linkedin_url} />
+        ) : null,
     },
     {
       key: "asked_at",
