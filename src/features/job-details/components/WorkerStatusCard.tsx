@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, Server } from "lucide-react";
+import { RefreshCw, Save, Server } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,9 +13,22 @@ export function WorkerStatusCard() {
   const health = useWorkerHealth(workerUrl);
   const isHealthy = health.data?.status === "ok";
 
+  // Tick once a second so the "Last checked" relative time keeps advancing
+  // instead of freezing at "0 seconds ago" until the next refetch.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1_000);
+    return () => clearInterval(id);
+  }, []);
+
   const handleSave = () => {
     setWorkerUrl(draft);
     toast.success(draft ? "Worker URL saved" : "Worker URL cleared");
+  };
+
+  const handleRefresh = () => {
+    health.refetch();
+    toast.message("Checking worker health…");
   };
 
   return (
@@ -46,7 +59,7 @@ export function WorkerStatusCard() {
       </div>
 
       <p className="mb-2 text-xs text-muted-foreground">
-        Paste the local agent's tunnel URL (e.g. a Cloudflare tunnel) so the backend can reach it to run automations.
+        Paste the local agent's tunnel URL (e.g. a Cloudflare tunnel).
       </p>
 
       <div className="flex gap-2">
@@ -60,10 +73,21 @@ export function WorkerStatusCard() {
           <Save className="size-3.5" />
           Save
         </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={!workerUrl || health.isFetching}
+          title="Check worker health now"
+        >
+          <RefreshCw className={cn("size-3.5", health.isFetching && "animate-spin")} />
+        </Button>
       </div>
 
       {workerUrl && health.dataUpdatedAt > 0 && (
-        <p className="mt-2 text-xs text-muted-foreground">Last checked {relativeTime(new Date(health.dataUpdatedAt).toISOString())}</p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Last checked {relativeTime(new Date(health.dataUpdatedAt).toISOString())}
+        </p>
       )}
     </div>
   );

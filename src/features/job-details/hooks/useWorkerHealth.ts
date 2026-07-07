@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 const WORKER_URL_STORAGE_KEY = "applyai_worker_url";
@@ -8,15 +8,32 @@ interface WorkerHealthResponse {
   timestamp: string;
 }
 
+// Module-level shared store so every component stays in sync when the URL changes
+// (previously each component held its own useState, so saving in one place didn't
+// update the others until a full remount/refresh).
+let workerUrl = localStorage.getItem(WORKER_URL_STORAGE_KEY) ?? "";
+const listeners = new Set<() => void>();
+
+function emit() {
+  listeners.forEach((listener) => listener());
+}
+
 /** The local automation agent's tunnel URL (e.g. a Cloudflare tunnel) — stored client-side only. */
 export function useWorkerUrl() {
-  const [url, setUrlState] = useState(() => localStorage.getItem(WORKER_URL_STORAGE_KEY) ?? "");
+  const url = useSyncExternalStore(
+    (onChange) => {
+      listeners.add(onChange);
+      return () => listeners.delete(onChange);
+    },
+    () => workerUrl
+  );
 
   const setUrl = useCallback((next: string) => {
     const trimmed = next.trim().replace(/\/+$/, "");
-    setUrlState(trimmed);
+    workerUrl = trimmed;
     if (trimmed) localStorage.setItem(WORKER_URL_STORAGE_KEY, trimmed);
     else localStorage.removeItem(WORKER_URL_STORAGE_KEY);
+    emit();
   }, []);
 
   return [url, setUrl] as const;
