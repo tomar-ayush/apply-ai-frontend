@@ -42,8 +42,8 @@ function buildDefaultValues(user: UserProfile): SettingsFormValues {
     openai_api_key: "",
     anthropic_api_key: "",
     gemini_api_key: "",
-    google_search_api_key: "",
-    google_search_engine_id: user.google_search_engine_id ?? "",
+    openrouter_api_key: "",
+    current_llm_model: user.current_llm_model ?? "",
   };
 }
 
@@ -89,7 +89,6 @@ export function SettingsPage() {
       skills: { list: values.skills },
       education: { entries: values.education },
       llm_provider: values.llm_provider || undefined,
-      google_search_engine_id: values.google_search_engine_id || undefined,
     };
 
     // The backend only stores one active provider + key pair, so only the key field
@@ -97,7 +96,8 @@ export function SettingsPage() {
     const activeKeyField = values.llm_provider ? LLM_PROVIDER_KEY_FIELD[values.llm_provider] : undefined;
     const activeKey = activeKeyField ? values[activeKeyField] : undefined;
     if (activeKey) payload.llm_api_key = activeKey;
-    if (values.google_search_api_key) payload.google_search_api_key = values.google_search_api_key;
+    // Explicitly send null when no model is provided so the backend clears any prior value.
+    payload.current_llm_model = values.current_llm_model?.trim() ? values.current_llm_model.trim() : null;
 
     updateProfile.mutate(payload, {
       onSuccess: () => {
@@ -105,7 +105,7 @@ export function SettingsPage() {
         form.setValue("openai_api_key", "");
         form.setValue("anthropic_api_key", "");
         form.setValue("gemini_api_key", "");
-        form.setValue("google_search_api_key", "");
+        form.setValue("openrouter_api_key", "");
       },
       onError: (error) => toast.error(getErrorMessage(error, "Could not save settings")),
     });
@@ -136,7 +136,6 @@ export function SettingsPage() {
             <LLMSettingsSection
               form={form}
               hasLlmApiKey={meQuery.data.has_llm_api_key}
-              hasGoogleSearchApiKey={meQuery.data.has_google_search_api_key}
               savedProvider={meQuery.data.llm_provider}
             />
             <AgentStatusSection />

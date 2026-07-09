@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
+import { FileUp, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PDFComparisonPanel } from "@/components/shared/PDFComparisonPanel";
+import { LatexUploadDialog } from "@/features/job-details/components/LatexUploadDialog";
 import { useJobResume, useGenerateResume, useSelectResumeVersion } from "@/queries/useResumeQueries";
 import { getErrorMessage } from "@/lib/axios-error";
 import { ResumeVersion } from "@/types/enums";
@@ -13,6 +14,7 @@ export function ResumeSection({ jobId }: { jobId: string }) {
   const generateResume = useGenerateResume(jobId);
   const selectVersion = useSelectResumeVersion(jobId);
   const [selected, setSelected] = useState<ResumeVersion | undefined>(undefined);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const handleGenerate = () => {
     generateResume.mutate(undefined, {
@@ -31,12 +33,18 @@ export function ResumeSection({ jobId }: { jobId: string }) {
 
   return (
     <div className="rounded-xl border border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
         <p className="text-sm font-medium text-foreground">Resume</p>
-        <Button size="sm" variant="outline" onClick={handleGenerate} disabled={generateResume.isPending}>
-          <Sparkles className="size-3.5" />
-          {generateResume.isPending ? "Optimizing…" : "Generate Optimized Resume"}
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setUploadOpen(true)}>
+            <FileUp className="size-3.5" />
+            Upload LaTeX
+          </Button>
+          <Button size="sm" variant="outline" onClick={handleGenerate} disabled={generateResume.isPending}>
+            <Sparkles className="size-3.5" />
+            {generateResume.isPending ? "Optimizing…" : "Generate Optimized Resume"}
+          </Button>
+        </div>
       </div>
       <div className="p-4">
         <PDFComparisonPanel
@@ -49,6 +57,8 @@ export function ResumeSection({ jobId }: { jobId: string }) {
           onSelectVersion={handleSelect}
         />
       </div>
+
+      <LatexUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} />
     </div>
   );
 }

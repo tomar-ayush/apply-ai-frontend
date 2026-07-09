@@ -1,22 +1,31 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Play, Workflow } from "lucide-react";
+import { Play, RefreshCw, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useWorkerHealth, useWorkerUrl } from "@/features/job-details/hooks/useWorkerHealth";
-import { JobStatus } from "@/types/enums";
+import { useTriggerWorkday, useTaskStatus } from "@/queries/useTasksQueries";
+import { JobStatus, TaskStatus } from "@/types/enums";
 import type { JobResponse } from "@/types/api";
 
-type DummyRunState = "idle" | "queued" | "running" | "applied";
+const TASK_STATUS_LABEL: Record<TaskStatus, string> = {
+  [TaskStatus.QUEUED]: "Queued",
+  [TaskStatus.RUNNING]: "Running",
+  [TaskStatus.COMPLETED]: "Completed",
+  [TaskStatus.FAILED]: "Failed",
+};
 
-/** Dummy for now — no Workday automation endpoint exists on the backend yet. */
 export function WorkdayApplyCard({ job }: { job: JobResponse }) {
   const [workerUrl] = useWorkerUrl();
   const health = useWorkerHealth(workerUrl);
   const isWorkerHealthy = health.data?.status === "ok";
-  const [runState, setRunState] = useState<DummyRunState>("idle");
+
+  const [taskId, setTaskId] = useState<string | undefined>(undefined);
+  const triggerWorkday = useTriggerWorkday(job.id);
+  const taskStatus = useTaskStatus(taskId);
 
   const isReady = job.status === JobStatus.READY_TO_APPLY;
-  const canRun = isReady && !!workerUrl && isWorkerHealthy && runState === "idle";
+  const canRun = isReady && !!workerUrl && isWorkerHealthy && !triggerWorkday.isPending;
 
   const disabledReason = !workerUrl
     ? "Configure the automation worker URL above first."
@@ -27,14 +36,25 @@ export function WorkdayApplyCard({ job }: { job: JobResponse }) {
         : undefined;
 
   const handleRun = () => {
-    setRunState("queued");
-    toast.success("Workday automation queued (dummy — no backend yet)");
-    setTimeout(() => setRunState("running"), 1200);
-    setTimeout(() => {
-      setRunState("applied");
-      toast.success("Workday application submitted (dummy)");
-    }, 3200);
+    const resumeUrl = job.optimized_resume_pdf_url ?? job.optimized_resume_latex_url ?? "";
+    triggerWorkday.mutate(
+      { job_id: job.id, job_url: job.workday_url, resume_url: resumeUrl, worker_url: workerUrl },
+      {
+        onSuccess: (data) => {
+          setTaskId(data.task_id);
+          toast.success("Workday automation queued");
+        },
+        onError: (error) => toast.error(`Could not queue Workday automation: ${String(error)}`),
+      }
+    );
   };
+
+  const handleRefresh = () => {
+    taskStatus.refetch();
+    toast.message("Checking task status…");
+  };
+
+  const status = taskStatus.data?.status;
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -50,27 +70,38 @@ export function WorkdayApplyCard({ job }: { job: JobResponse }) {
         </div>
       </div>
 
-      {runState !== "idle" && (
-        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className={
-              runState === "applied"
-                ? "h-full w-full rounded-full bg-emerald-500 transition-all"
-                : "h-full w-1/3 animate-[progress-slide_1.2s_ease-in-out_infinite] rounded-full bg-blue-500"
-            }
-          />
+      {taskId && (
+        <div className="mt-3 flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-2">
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                status === TaskStatus.COMPLETED
+                  ? "bg-emerald-500"
+                  : status === TaskStatus.FAILED
+                    ? "bg-rose-500"
+                    : status === TaskStatus.RUNNING
+                      ? "bg-blue-500"
+                      : "bg-zinc-500"
+              )}
+            />
+            <span className="text-xs text-muted-foreground">
+              Status: {status ? TASK_STATUS_LABEL[status] : "Unknown"}
+            </span>
+          </div>
+          <Button size="xs" variant="ghost" onClick={handleRefresh} disabled={taskStatus.isFetching}>
+            <RefreshCw className={cn("size-3", taskStatus.isFetching && "animate-spin")} />
+            Refresh
+          </Button>
         </div>
       )}
 
       <div className="mt-3">
         <Button size="sm" variant="outline" onClick={handleRun} disabled={!canRun} className="w-full">
           <Play className="size-3.5" />
-          {runState === "idle" && "Run Automation"}
-          {runState === "queued" && "Queued…"}
-          {runState === "running" && "Running…"}
-          {runState === "applied" && "Applied"}
+          {triggerWorkday.isPending ? "Queuing…" : "Run Automation"}
         </Button>
-        {disabledReason && runState === "idle" && <p className="mt-1.5 text-xs text-muted-foreground">{disabledReason}</p>}
+        {disabledReason && !taskId && <p className="mt-1.5 text-xs text-muted-foreground">{disabledReason}</p>}
       </div>
     </div>
   );

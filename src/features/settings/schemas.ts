@@ -32,23 +32,36 @@ export const workdayProfileSchema = z.object({
     .default([]),
 });
 
-export const llmSettingsSchema = z.object({
-  llm_provider: z.enum([LLMProvider.OPENAI, LLMProvider.ANTHROPIC, LLMProvider.GEMINI]).optional(),
-  // One input per provider so keys can be entered side by side without switching a dropdown.
-  // The backend only persists a single active provider + key pair (see llm_provider above),
-  // so only the field matching the selected active provider is actually sent on save.
-  openai_api_key: optionalString,
-  anthropic_api_key: optionalString,
-  gemini_api_key: optionalString,
-  google_search_api_key: optionalString,
-  google_search_engine_id: optionalString,
-});
+export const llmSettingsSchema = z
+  .object({
+    llm_provider: z.enum([LLMProvider.OPENAI, LLMProvider.ANTHROPIC, LLMProvider.GEMINI, LLMProvider.OPENROUTER]).optional(),
+    // One input per provider so keys can be entered side by side without switching a dropdown.
+    // The backend only persists a single active provider + key pair (see llm_provider above),
+    // so only the field matching the selected active provider is actually sent on save.
+    openai_api_key: optionalString,
+    anthropic_api_key: optionalString,
+    gemini_api_key: optionalString,
+    openrouter_api_key: optionalString,
+    // Model is required for OpenRouter (users pick their own model); optional for the
+    // first-party providers which default server-side.
+    current_llm_model: optionalString,
+  })
+  .superRefine((val, ctx) => {
+    if (val.llm_provider === LLMProvider.OPENROUTER && !val.current_llm_model?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["current_llm_model"],
+        message: "Model is required when using OpenRouter.",
+      });
+    }
+  });
 
 /** Maps an LLM provider to the form field holding its API key. */
 export const LLM_PROVIDER_KEY_FIELD = {
   [LLMProvider.OPENAI]: "openai_api_key",
   [LLMProvider.ANTHROPIC]: "anthropic_api_key",
   [LLMProvider.GEMINI]: "gemini_api_key",
+  [LLMProvider.OPENROUTER]: "openrouter_api_key",
 } as const;
 
 export const settingsFormSchema = z.object({

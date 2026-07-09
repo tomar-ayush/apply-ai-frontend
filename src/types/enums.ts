@@ -58,6 +58,7 @@ export const LLMProvider = {
   OPENAI: "openai",
   ANTHROPIC: "anthropic",
   GEMINI: "gemini",
+  OPENROUTER: "openrouter",
 } as const;
 export type LLMProvider = (typeof LLMProvider)[keyof typeof LLMProvider];
 
@@ -66,3 +67,17 @@ export const ResumeVersion = {
   OPTIMIZED: "optimized",
 } as const;
 export type ResumeVersion = (typeof ResumeVersion)[keyof typeof ResumeVersion];
+
+export const TaskType = {
+  LINKEDIN_CONNECT: "LINKEDIN_CONNECT",
+  WORKDAY_APPLY: "WORKDAY_APPLY",
+} as const;
+export type TaskType = (typeof TaskType)[keyof typeof TaskType];
+
+export const TaskStatus = {
+  QUEUED: "QUEUED",
+  RUNNING: "RUNNING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+} as const;
+export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];

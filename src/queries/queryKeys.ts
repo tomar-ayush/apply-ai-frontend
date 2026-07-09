@@ -9,4 +9,5 @@ export const queryKeys = {
   jobJd: (id: string) => ["jobs", id, "jd"] as const,
   jobReferrals: (id: string) => ["jobs", id, "referrals"] as const,
   jobResume: (id: string, version: ResumeVersion) => ["jobs", id, "resume", version] as const,
+  task: (id: string) => ["tasks", id] as const,
 };

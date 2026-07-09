@@ -40,19 +40,16 @@ export function ReferralTable({ jobId, referrals, isLoading }: ReferralTableProp
   };
 
   // Lower priority number = better candidate to contact first (set by referral generation);
-  // referrals without a priority sort to the end. The original index is used as a stable
-  // tiebreaker so that changing a referral's status doesn't reshuffle rows with equal priority.
+  // referrals without a priority sort to the end. created_at is used as a stable tiebreaker
+  // so that changing a referral's status doesn't reshuffle rows with equal priority.
   const sortedReferrals = useMemo(
     () =>
-      referrals
-        .map((referral, index) => ({ referral, index }))
-        .sort((a, b) => {
-          const ap = a.referral.priority ?? Number.POSITIVE_INFINITY;
-          const bp = b.referral.priority ?? Number.POSITIVE_INFINITY;
-          if (ap !== bp) return ap - bp;
-          return a.index - b.index;
-        })
-        .map(({ referral }) => referral),
+      [...referrals].sort((a, b) => {
+        const ap = a.priority ?? Number.POSITIVE_INFINITY;
+        const bp = b.priority ?? Number.POSITIVE_INFINITY;
+        if (ap !== bp) return ap - bp;
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }),
     [referrals]
   );
 

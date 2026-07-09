@@ -28,14 +28,3 @@ export function useUpdateProfile() {
     },
   });
 }
-
-export function useUploadResume() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (formData: FormData) => usersService.uploadResume(formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumeOriginal });
-      queryClient.invalidateQueries({ queryKey: queryKeys.me });
-    },
-  });
-}

@@ -1,6 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Download, Upload } from "lucide-react";
+import { ClipboardPaste, Download, FileUp, Loader2 } from "lucide-react";
 
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PDFViewer } from "@/components/shared/PDFComparisonPanel";
@@ -8,29 +8,57 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useOriginalResume, useUploadResume } from "@/queries/useUsersQueries";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useOriginalResume } from "@/queries/useUsersQueries";
+import { useUploadLatex } from "@/queries/useResumeQueries";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { getErrorMessage } from "@/lib/axios-error";
 
+const SAMPLE_LATEX = `\\documentclass{article}
+\\begin{document}
+Hello, \\LaTeX!
+\\end{document}`;
+
 export function ResumeManagerSection() {
   const resumeQuery = useOriginalResume();
-  const uploadResume = useUploadResume();
-  const pdfInputRef = useRef<HTMLInputElement>(null);
-  const latexInputRef = useRef<HTMLInputElement>(null);
+  const uploadLatex = useUploadLatex();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasted, setPasted] = useState("");
   const [defaultForAutomation, setDefaultForAutomation] = useLocalStorage("applyai_resume_default_automation", true);
 
-  const handleFilesSelected = (pdfFile: File | null, latexFile: File | null) => {
-    if (!pdfFile && !latexFile) return;
-    const formData = new FormData();
-    if (pdfFile) formData.append("pdf_file", pdfFile);
-    if (latexFile) formData.append("latex_file", latexFile);
-    uploadResume.mutate(formData, {
-      onSuccess: () => toast.success("Resume uploaded"),
+  const hasResume = !!resumeQuery.data?.pdf_url;
+
+  const handleFile = async (file: File) => {
+    const text = await file.text();
+    uploadLatex.mutate(text, {
+      onSuccess: () => toast.success("LaTeX uploaded and compiling to PDF"),
       onError: (error) => toast.error(getErrorMessage(error, "Could not upload resume")),
     });
   };
 
-  const hasResume = !!resumeQuery.data?.pdf_url;
+  const handlePasteSubmit = () => {
+    if (!pasted.trim()) {
+      toast.error("Paste your LaTeX source first.");
+      return;
+    }
+    uploadLatex.mutate(pasted, {
+      onSuccess: () => {
+        toast.success("LaTeX uploaded and compiling to PDF");
+        setPasted("");
+        setPasteOpen(false);
+      },
+      onError: (error) => toast.error(getErrorMessage(error, "Could not upload resume")),
+    });
+  };
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -41,7 +69,7 @@ export function ResumeManagerSection() {
         actions={<span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">Single source of truth</span>}
       />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_260px]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
         <div className="rounded-lg border border-border p-3">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Original Resume</p>
@@ -53,7 +81,7 @@ export function ResumeManagerSection() {
         </div>
 
         <div className="space-y-3 rounded-lg border border-border p-3">
-          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Resume Metadata</p>
+          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Resume Source (LaTeX only)</p>
 
           <div className="flex items-center justify-between text-sm">
             <Label htmlFor="default-automation" className="font-normal text-muted-foreground">
@@ -63,28 +91,26 @@ export function ResumeManagerSection() {
           </div>
 
           <input
-            ref={pdfInputRef}
+            ref={fileInputRef}
             type="file"
-            accept="application/pdf"
+            accept=".tex,text/x-tex"
             className="hidden"
-            onChange={(e) => handleFilesSelected(e.target.files?.[0] ?? null, null)}
-          />
-          <input
-            ref={latexInputRef}
-            type="file"
-            accept=".tex"
-            className="hidden"
-            onChange={(e) => handleFilesSelected(null, e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleFile(file);
+              e.target.value = "";
+            }}
           />
 
-          <Button size="sm" className="w-full" disabled={uploadResume.isPending} onClick={() => pdfInputRef.current?.click()}>
-            <Upload className="size-3.5" />
-            {hasResume ? "Replace PDF" : "Upload PDF"}
+          <Button size="sm" className="w-full" disabled={uploadLatex.isPending} onClick={() => fileInputRef.current?.click()}>
+            {uploadLatex.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <FileUp className="size-3.5" />}
+            {hasResume ? "Replace LaTeX file" : "Upload LaTeX file"}
           </Button>
-          <Button size="sm" variant="outline" className="w-full" disabled={uploadResume.isPending} onClick={() => latexInputRef.current?.click()}>
-            <Upload className="size-3.5" />
-            Upload LaTeX Source
+          <Button size="sm" variant="outline" className="w-full" disabled={uploadLatex.isPending} onClick={() => setPasteOpen(true)}>
+            <ClipboardPaste className="size-3.5" />
+            Paste LaTeX code
           </Button>
+
           {hasResume && (
             <a
               href={resumeQuery.data?.pdf_url ?? undefined}
@@ -97,10 +123,41 @@ export function ResumeManagerSection() {
             </a>
           )}
           <p className="text-xs text-muted-foreground">
-            A LaTeX source is required before ApplyAI can generate job-specific optimized resumes.
+            A LaTeX source is required before ApplyAI can generate job-specific optimized resumes. We compile it to PDF for you.
           </p>
         </div>
       </div>
+
+      <Dialog open={pasteOpen} onOpenChange={setPasteOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Paste LaTeX code</DialogTitle>
+            <DialogDescription>Paste your resume LaTeX source below. It will be compiled to a PDF.</DialogDescription>
+          </DialogHeader>
+
+          <Textarea
+            value={pasted}
+            onChange={(e) => setPasted(e.target.value)}
+            placeholder="Paste your LaTeX source here…"
+            rows={12}
+            className="max-h-80 overflow-y-auto font-mono text-xs"
+            autoFocus
+          />
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPasteOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="ghost" onClick={() => setPasted(SAMPLE_LATEX)}>
+              Load sample
+            </Button>
+            <Button onClick={handlePasteSubmit} disabled={uploadLatex.isPending}>
+              {uploadLatex.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <ClipboardPaste className="size-3.5" />}
+              Upload & Compile
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

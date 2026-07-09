@@ -1,6 +1,6 @@
 // Hand-mirrored from ../backend/app/**/schemas.py — keep in sync manually, no codegen.
 
-import type { JobStatus, ReferralStatus, ResumeVersion } from "@/types/enums";
+import type { JobStatus, ReferralStatus, ResumeVersion, TaskStatus, TaskType } from "@/types/enums";
 
 export interface TokenResponse {
   access_token: string;
@@ -33,8 +33,7 @@ export interface UserProfile {
 
   llm_provider: string | null;
   has_llm_api_key: boolean;
-  has_google_search_api_key: boolean;
-  google_search_engine_id: string | null;
+  current_llm_model: string | null;
 
   created_at: string;
   updated_at: string;
@@ -58,13 +57,33 @@ export interface UpdateUserRequest {
   education?: Record<string, unknown>;
   llm_provider?: string;
   llm_api_key?: string;
-  google_search_api_key?: string;
-  google_search_engine_id?: string;
+  current_llm_model?: string;
 }
 
 export interface ResumeUploadResponse {
   pdf_url: string | null;
   latex_url: string | null;
+  message: string;
+}
+
+export interface PresignedUploadUrlResponse {
+  latex_presigned_url: string;
+}
+
+export interface FinalizeResumeResponse {
+  version: string;
+  download_url: string | null;
+  message: string;
+}
+
+export interface GenerateResumeResponse {
+  download_url: string | null;
+  validated: boolean;
+}
+
+export interface DownloadResumeResponse {
+  version: string;
+  download_url: string;
   message: string;
 }
 
@@ -131,12 +150,6 @@ export interface GenerateReferralsResponse {
   referrals: ReferralResponse[];
 }
 
-export interface GenerateResumeResponse {
-  latex_url: string | null;
-  pdf_url: string | null;
-  message: string;
-}
-
 export interface ResumeResponse {
   version: string;
   pdf_url: string | null;
@@ -149,4 +162,28 @@ export interface SelectResumeRequest {
 
 export interface HealthResponse {
   status: string;
+}
+
+export interface TriggerWorkdayRequest {
+  job_id: string;
+  job_url: string;
+  resume_url: string;
+  worker_url: string;
+}
+
+export interface TriggerWorkdayResponse {
+  queued: boolean;
+  task_id: string;
+}
+
+export interface TaskResponse {
+  id: string;
+  job_id: string;
+  user_id: string;
+  task_type: TaskType;
+  payload: Record<string, unknown>;
+  status: TaskStatus;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
 }

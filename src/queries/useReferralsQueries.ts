@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { referralsService } from "@/services/referralsService";
+import { tasksService } from "@/services/tasksService";
 import { queryKeys } from "@/queries/queryKeys";
 import type { ConnectReferralRequest, UpdateReferralRequest } from "@/types/api";
 
@@ -47,7 +48,7 @@ export function useConnectReferral(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ referralId, payload }: { referralId: string; payload: ConnectReferralRequest }) =>
-      referralsService.connect(referralId, payload),
+      tasksService.connectReferral(referralId, payload),
     onSuccess: () => {
       const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
       // The agent processes the connection asynchronously and calls the backend back later,

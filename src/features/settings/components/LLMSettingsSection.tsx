@@ -13,9 +13,10 @@ const PROVIDER_LABELS: Record<string, string> = {
   [LLMProvider.ANTHROPIC]: "Anthropic Claude",
   [LLMProvider.OPENAI]: "OpenAI GPT",
   [LLMProvider.GEMINI]: "Google Gemini",
+  [LLMProvider.OPENROUTER]: "OpenRouter",
 };
 
-const PROVIDERS = [LLMProvider.OPENAI, LLMProvider.ANTHROPIC, LLMProvider.GEMINI] as const;
+const PROVIDERS = [LLMProvider.OPENAI, LLMProvider.ANTHROPIC, LLMProvider.GEMINI, LLMProvider.OPENROUTER] as const;
 
 function MaskedKeyInput({
   id,
@@ -44,12 +45,11 @@ function MaskedKeyInput({
 interface LLMSettingsSectionProps {
   form: UseFormReturn<SettingsFormValues>;
   hasLlmApiKey: boolean;
-  hasGoogleSearchApiKey: boolean;
   /** Provider currently persisted on the server — only this one can have a saved key. */
   savedProvider: string | null;
 }
 
-export function LLMSettingsSection({ form, hasLlmApiKey, hasGoogleSearchApiKey, savedProvider }: LLMSettingsSectionProps) {
+export function LLMSettingsSection({ form, hasLlmApiKey, savedProvider }: LLMSettingsSectionProps) {
   const { register, control, watch } = form;
   const selectedProvider = watch("llm_provider");
 
@@ -62,29 +62,52 @@ export function LLMSettingsSection({ form, hasLlmApiKey, hasGoogleSearchApiKey, 
       />
 
       <div className="space-y-4">
-        <Field>
-          <FieldLabel htmlFor="llm_provider">Active provider</FieldLabel>
-          <FieldContent>
-            <Controller
-              control={control}
-              name="llm_provider"
-              render={({ field }) => (
-                <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v || undefined)}>
-                  <SelectTrigger id="llm_provider" className="w-full sm:w-64">
-                    <SelectValue placeholder="Select a provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PROVIDERS.map((provider) => (
-                      <SelectItem key={provider} value={provider}>
-                        {PROVIDER_LABELS[provider]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FieldContent>
-        </Field>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          <Field className="sm:w-64">
+            <FieldLabel htmlFor="llm_provider">Active provider</FieldLabel>
+            <FieldContent>
+              <Controller
+                control={control}
+                name="llm_provider"
+                render={({ field }) => (
+                  <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v || undefined)}>
+                    <SelectTrigger id="llm_provider" className="w-full">
+                      <SelectValue placeholder="Select a provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PROVIDERS.map((provider) => (
+                        <SelectItem key={provider} value={provider}>
+                          {PROVIDER_LABELS[provider]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FieldContent>
+          </Field>
+
+          <Field className="sm:w-56">
+            <FieldLabel htmlFor="current_llm_model">
+              Model
+              {selectedProvider === LLMProvider.OPENROUTER && <span className="ml-1 text-rose-400">*</span>}
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id="current_llm_model"
+                placeholder={selectedProvider === LLMProvider.OPENROUTER ? "Required" : "Optional"}
+                {...register("current_llm_model")}
+              />
+            </FieldContent>
+          </Field>
+        </div>
+
+        {selectedProvider === LLMProvider.OPENROUTER && (
+          <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
+            OpenRouter requires a model. Use any slug from{" "}
+            <span className="font-mono">openrouter.ai/models</span>.
+          </p>
+        )}
 
         <div className="flex items-start gap-1.5 rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           <Info className="mt-0.5 size-3.5 shrink-0" />
@@ -119,24 +142,6 @@ export function LLMSettingsSection({ form, hasLlmApiKey, hasGoogleSearchApiKey, 
               </Field>
             );
           })}
-
-          <Field>
-            <FieldLabel htmlFor="google_search_api_key">Google Search API key</FieldLabel>
-            <FieldContent>
-              <MaskedKeyInput
-                id="google_search_api_key"
-                placeholder={hasGoogleSearchApiKey ? "•••••••••••••••••••• (key set)" : "Optional, used for referral search"}
-                register={register("google_search_api_key")}
-              />
-            </FieldContent>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="google_search_engine_id">Google Search engine ID</FieldLabel>
-            <FieldContent>
-              <Input id="google_search_engine_id" placeholder="Optional" {...register("google_search_engine_id")} />
-            </FieldContent>
-          </Field>
         </div>
       </div>
     </div>

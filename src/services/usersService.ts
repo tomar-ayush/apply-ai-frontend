@@ -10,12 +10,6 @@ export const usersService = {
     const { data } = await apiClient.patch<UserProfile>("/users/me", payload);
     return data;
   },
-  async uploadResume(formData: FormData): Promise<ResumeUploadResponse> {
-    const { data } = await apiClient.post<ResumeUploadResponse>("/users/resume", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return data;
-  },
   async getResume(): Promise<ResumeUploadResponse> {
     const { data } = await apiClient.get<ResumeUploadResponse>("/users/resume");
     return data;

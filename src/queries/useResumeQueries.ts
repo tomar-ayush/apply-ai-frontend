@@ -12,6 +12,22 @@ export function useJobResume(jobId: string | undefined, version: ResumeVersion) 
   });
 }
 
+/** Uploads a LaTeX file (raw .tex string) to R2 and compiles it to the original PDF. */
+export function useUploadLatex() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (tex: string) => {
+      const { latex_presigned_url } = await resumeService.getUploadUrl();
+      await resumeService.uploadLatex(latex_presigned_url, tex);
+      return resumeService.finalizeOriginal();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobResume("", ResumeVersion.ORIGINAL) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumeOriginal });
+    },
+  });
+}
+
 export function useGenerateResume(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({
