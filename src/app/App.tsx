@@ -1,11 +1,15 @@
 import { Providers } from "@/app/providers";
 import { AppRoutes } from "@/app/routes";
+import { Analytics } from '@vercel/analytics/next';
 
 function App() {
   return (
-    <Providers>
-      <AppRoutes />
-    </Providers>
+    <>
+      <Analytics />
+      <Providers>
+        <AppRoutes />
+      </Providers>
+    </>
   );
 }
 
