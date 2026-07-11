@@ -4,9 +4,8 @@ import type {
   FinalizeResumeResponse,
   GenerateResumeResponse,
   PresignedUploadUrlResponse,
-  ResumeResponse,
 } from "@/types/api";
-import type { ResumeVersion } from "@/types/enums";
+import { ResumeVersion } from "@/types/enums";
 
 export const resumeService = {
   /** Step 1: get a presigned PUT url for the original LaTeX file. */
@@ -38,17 +37,9 @@ export const resumeService = {
 
   /** Step 5: get a presigned GET url for a compiled PDF (original | ai). */
   async getDownloadUrl(version: ResumeVersion): Promise<DownloadResumeResponse> {
-    const { data } = await apiClient.get<DownloadResumeResponse>(`/resumes/download/${version}`);
-    return data;
-  },
-
-  async get(jobId: string, version: ResumeVersion): Promise<ResumeResponse> {
-    const { data } = await apiClient.get<ResumeResponse>(`/jobs/${jobId}/resume`, { params: { version } });
-    return data;
-  },
-
-  async select(jobId: string, version: ResumeVersion): Promise<ResumeResponse> {
-    const { data } = await apiClient.post<ResumeResponse>(`/jobs/${jobId}/resume/select`, { version });
+    // Backend path segment is "original" or "ai" (not "optimized").
+    const pathSegment = version === ResumeVersion.OPTIMIZED ? "ai" : version;
+    const { data } = await apiClient.get<DownloadResumeResponse>(`/resumes/download/${pathSegment}`);
     return data;
   },
 };

@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/apiClient";
-import type { ResumeUploadResponse, UpdateUserRequest, UserProfile } from "@/types/api";
+import type { UpdateUserRequest, UserProfile } from "@/types/api";
 
 export const usersService = {
   async getMe(): Promise<UserProfile> {
@@ -8,10 +8,6 @@ export const usersService = {
   },
   async updateMe(payload: UpdateUserRequest): Promise<UserProfile> {
     const { data } = await apiClient.patch<UserProfile>("/users/me", payload);
-    return data;
-  },
-  async getResume(): Promise<ResumeUploadResponse> {
-    const { data } = await apiClient.get<ResumeUploadResponse>("/users/resume");
     return data;
   },
 };

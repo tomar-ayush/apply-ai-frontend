@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usersService } from "@/services/usersService";
+import { resumeService } from "@/services/resumeService";
 import { queryKeys } from "@/queries/queryKeys";
+import { ResumeVersion } from "@/types/enums";
 import type { UpdateUserRequest } from "@/types/api";
 
 export function useMe(enabled = true) {
@@ -14,7 +16,7 @@ export function useMe(enabled = true) {
 export function useOriginalResume(enabled = true) {
   return useQuery({
     queryKey: queryKeys.resumeOriginal,
-    queryFn: () => usersService.getResume(),
+    queryFn: () => resumeService.getDownloadUrl(ResumeVersion.ORIGINAL),
     enabled,
   });
 }

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { ClipboardPaste, Download, FileUp, Loader2 } from "lucide-react";
+import { ClipboardPaste, Download, FileUp, Loader2, RefreshCw } from "lucide-react";
 
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PDFViewer } from "@/components/shared/PDFComparisonPanel";
@@ -18,7 +18,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useOriginalResume } from "@/queries/useUsersQueries";
-import { useUploadLatex } from "@/queries/useResumeQueries";
+import { useRefreshResumeDownload, useUploadLatex } from "@/queries/useResumeQueries";
+import { ResumeVersion } from "@/types/enums";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { getErrorMessage } from "@/lib/axios-error";
 
@@ -30,12 +31,13 @@ Hello, \\LaTeX!
 export function ResumeManagerSection() {
   const resumeQuery = useOriginalResume();
   const uploadLatex = useUploadLatex();
+  const refreshDownload = useRefreshResumeDownload(ResumeVersion.ORIGINAL);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasted, setPasted] = useState("");
   const [defaultForAutomation, setDefaultForAutomation] = useLocalStorage("applyai_resume_default_automation", true);
 
-  const hasResume = !!resumeQuery.data?.pdf_url;
+  const hasResume = !!resumeQuery.data?.download_url;
 
   const handleFile = async (file: File) => {
     const text = await file.text();
@@ -73,11 +75,25 @@ export function ResumeManagerSection() {
         <div className="rounded-lg border border-border p-3">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Original Resume</p>
-            {hasResume && (
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">Uploaded</span>
-            )}
+            <div className="flex items-center gap-2">
+              {hasResume && (
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-400">Uploaded</span>
+              )}
+              <Button
+                size="icon-xs"
+                variant="ghost"
+                onClick={() => refreshDownload.mutate(undefined, {
+                  onSuccess: () => toast.success("Resume refreshed"),
+                  onError: (error) => toast.error(getErrorMessage(error, "Could not refresh resume")),
+                })}
+                disabled={refreshDownload.isPending || resumeQuery.isLoading}
+                title="Refresh from storage"
+              >
+                <RefreshCw className={cn("size-3.5", (refreshDownload.isPending || resumeQuery.isFetching) && "animate-spin")} />
+              </Button>
+            </div>
           </div>
-          <PDFViewer url={resumeQuery.data?.pdf_url} isLoading={resumeQuery.isLoading} emptyLabel="No resume uploaded yet." />
+          <PDFViewer url={resumeQuery.data?.download_url} isLoading={resumeQuery.isLoading} emptyLabel="No resume uploaded yet." />
         </div>
 
         <div className="space-y-3 rounded-lg border border-border p-3">
@@ -113,7 +129,7 @@ export function ResumeManagerSection() {
 
           {hasResume && (
             <a
-              href={resumeQuery.data?.pdf_url ?? undefined}
+              href={resumeQuery.data?.download_url ?? undefined}
               target="_blank"
               rel="noreferrer"
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "w-full")}

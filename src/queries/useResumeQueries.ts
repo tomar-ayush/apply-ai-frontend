@@ -6,7 +6,7 @@ import { ResumeVersion } from "@/types/enums";
 export function useJobResume(jobId: string | undefined, version: ResumeVersion) {
   return useQuery({
     queryKey: queryKeys.jobResume(jobId ?? "", version),
-    queryFn: () => resumeService.get(jobId!, version),
+    queryFn: () => resumeService.getDownloadUrl(version),
     enabled: !!jobId,
     retry: false,
   });
@@ -39,12 +39,14 @@ export function useGenerateResume(jobId: string) {
   });
 }
 
-export function useSelectResumeVersion(jobId: string) {
+/** Fetches a fresh presigned GET url for a compiled PDF and reloads it from R2. */
+export function useRefreshResumeDownload(version: ResumeVersion) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (version: ResumeVersion) => resumeService.select(jobId, version),
-    onSuccess: (_data, version) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, version) });
+    mutationFn: () => resumeService.getDownloadUrl(version),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobResume("", version) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumeOriginal });
     },
   });
 }

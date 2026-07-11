@@ -60,12 +60,6 @@ export interface UpdateUserRequest {
   current_llm_model?: string;
 }
 
-export interface ResumeUploadResponse {
-  pdf_url: string | null;
-  latex_url: string | null;
-  message: string;
-}
-
 export interface PresignedUploadUrlResponse {
   latex_presigned_url: string;
 }
@@ -148,12 +142,6 @@ export interface ConnectReferralResponse {
 export interface GenerateReferralsResponse {
   generated: number;
   referrals: ReferralResponse[];
-}
-
-export interface ResumeResponse {
-  version: string;
-  pdf_url: string | null;
-  latex_url: string | null;
 }
 
 export interface SelectResumeRequest {
