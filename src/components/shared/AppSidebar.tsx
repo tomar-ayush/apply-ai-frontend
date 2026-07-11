@@ -1,7 +1,7 @@
 import { LayoutGrid, Briefcase, Settings, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BrandMark } from "@/components/shared/BrandMark";
-import { ConnectionIndicator } from "@/components/shared/ConnectionIndicator";
+import { ConnectionIndicatorConnected } from "@/components/shared/ConnectionIndicator";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ export function AppSidebar() {
           <span className="hidden lg:inline">Log out</span>
         </button>
         <Separator className="bg-sidebar-border" />
-        <ConnectionIndicator />
+        <ConnectionIndicatorConnected />
       </div>
     </aside>
   );

@@ -148,10 +148,6 @@ export interface SelectResumeRequest {
   version: ResumeVersion;
 }
 
-export interface HealthResponse {
-  status: string;
-}
-
 export interface TriggerWorkdayRequest {
   job_id: string;
   job_url: string;

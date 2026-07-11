@@ -12,7 +12,6 @@ import { ProfileSection } from "@/features/settings/components/ProfileSection";
 import { WorkdayProfileSection } from "@/features/settings/components/WorkdayProfileSection";
 import { LLMSettingsSection } from "@/features/settings/components/LLMSettingsSection";
 import { ResumeManagerSection } from "@/features/settings/components/ResumeManagerSection";
-import { AgentStatusSection } from "@/features/settings/components/AgentStatusSection";
 import { getErrorMessage } from "@/lib/axios-error";
 import type { UserProfile } from "@/types/api";
 
@@ -138,7 +137,6 @@ export function SettingsPage() {
               hasLlmApiKey={meQuery.data.has_llm_api_key}
               savedProvider={meQuery.data.llm_provider}
             />
-            <AgentStatusSection />
           </form>
         )}
       </div>

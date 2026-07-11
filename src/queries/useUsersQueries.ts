@@ -15,7 +15,7 @@ export function useMe(enabled = true) {
 
 export function useOriginalResume(enabled = true) {
   return useQuery({
-    queryKey: queryKeys.resumeOriginal,
+    queryKey: queryKeys.resumeVersion(ResumeVersion.ORIGINAL),
     queryFn: () => resumeService.getDownloadUrl(ResumeVersion.ORIGINAL),
     enabled,
   });
