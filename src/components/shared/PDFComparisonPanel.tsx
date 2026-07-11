@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Document, Page } from "react-pdf";
-import { ChevronLeft, ChevronRight, FileX2, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileX2, Loader2, Maximize2, X } from "lucide-react";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "@/lib/pdf-worker";
@@ -13,9 +13,10 @@ interface PDFViewerProps {
   url: string | null | undefined;
   isLoading?: boolean;
   emptyLabel: string;
+  onExpand?: () => void;
 }
 
-export function PDFViewer({ url, isLoading, emptyLabel }: PDFViewerProps) {
+export function PDFViewer({ url, isLoading, emptyLabel, onExpand }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [page, setPage] = useState(1);
 
@@ -54,7 +55,12 @@ export function PDFViewer({ url, isLoading, emptyLabel }: PDFViewerProps) {
           }
           className="flex justify-center"
         >
-          <Page pageNumber={page} width={320} renderAnnotationLayer={false} />
+          <div
+            className="inline-block cursor-zoom-in"
+            onClick={() => onExpand?.()}
+          >
+            <Page pageNumber={page} width={320} renderAnnotationLayer={false} />
+          </div>
         </Document>
       </div>
       {!!numPages && numPages > 1 && (
@@ -98,30 +104,77 @@ export function PDFComparisonPanel({
     { version: "optimized" as ResumeVersion, label: "Optimized", url: optimizedUrl, isLoading: isOptimizedLoading },
   ];
 
+  const [expandedUrl, setExpandedUrl] = useState<string | null>(null);
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {panels.map((panel) => (
         <div key={panel.version} className={cn("rounded-lg border border-border p-3", selectedVersion === panel.version && "border-primary/50 ring-1 ring-primary/20")}>
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{panel.label}</p>
-            {onSelectVersion && panel.url && (
-              <Button
-                size="xs"
-                variant={selectedVersion === panel.version ? "secondary" : "outline"}
-                disabled={isSelecting}
-                onClick={() => onSelectVersion(panel.version)}
-              >
-                {selectedVersion === panel.version ? "Selected" : "Use this version"}
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {panel.url && (
+                <Button size="xs" variant="ghost" onClick={() => setExpandedUrl(panel.url ?? null)} title="Expand">
+                  <Maximize2 className="size-3.5" />
+                </Button>
+              )}
+              {onSelectVersion && panel.url && (
+                <Button
+                  size="xs"
+                  variant={selectedVersion === panel.version ? "secondary" : "outline"}
+                  disabled={isSelecting}
+                  onClick={() => onSelectVersion(panel.version)}
+                >
+                  {selectedVersion === panel.version ? "Selected" : "Use this version"}
+                </Button>
+              )}
+            </div>
           </div>
           <PDFViewer
             url={panel.url}
             isLoading={panel.isLoading}
+            onExpand={panel.url ? () => setExpandedUrl(panel.url ?? null) : undefined}
             emptyLabel={panel.version === "original" ? "No original resume uploaded yet." : "No optimized resume generated yet."}
           />
         </div>
       ))}
+
+      {expandedUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setExpandedUrl(null)}
+        >
+          <div
+            className="max-h-[92vh] w-full max-w-4xl overflow-auto rounded-xl border border-border bg-card p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm font-medium text-foreground">Resume (expanded)</p>
+              <Button variant="ghost" size="icon" onClick={() => setExpandedUrl(null)}>
+                <X className="size-4" />
+              </Button>
+            </div>
+            <div className="flex justify-center">
+              <Document
+                file={expandedUrl}
+                loading={
+                  <div className="flex h-80 items-center justify-center">
+                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                  </div>
+                }
+                error={
+                  <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
+                    Couldn't render this PDF.
+                  </div>
+                }
+                className="flex justify-center"
+              >
+                <Page pageNumber={1} width={700} renderAnnotationLayer={false} />
+              </Document>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { PDFComparisonPanel } from "@/components/shared/PDFComparisonPanel";
 import { LatexUploadDialog } from "@/features/job-details/components/LatexUploadDialog";
 import { GenerateResumeDialog } from "@/features/job-details/components/GenerateResumeDialog";
+import { PDFDiffViewer } from "@/features/job-details/components/PDFDiffViewer";
 import { useJobResume, useGenerateResume } from "@/queries/useResumeQueries";
 import { getErrorMessage } from "@/lib/axios-error";
 import { ResumeVersion, type ResumeSection as ResumeSectionValue } from "@/types/enums";
@@ -64,6 +65,12 @@ export function ResumeSection({ jobId }: { jobId: string }) {
           optimizedUrl={optimizedQuery.data?.download_url}
           isOriginalLoading={originalQuery.isLoading}
           isOptimizedLoading={optimizedQuery.isLoading || generateResume.isPending}
+        />
+
+        <PDFDiffViewer
+          originalUrl={originalQuery.data?.download_url}
+          optimizedUrl={optimizedQuery.data?.download_url}
+          isLoading={optimizedQuery.isLoading || generateResume.isPending}
         />
       </div>
 
