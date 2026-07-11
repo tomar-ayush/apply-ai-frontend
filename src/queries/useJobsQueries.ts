@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { jobsService } from "@/services/jobsService";
 import { queryKeys } from "@/queries/queryKeys";
 import type { JobStatus } from "@/types/enums";
+import type { JobDetailResponse } from "@/types/api";
 
 export function useJobsList(status?: JobStatus) {
   return useQuery({
     queryKey: queryKeys.jobs(status),
     queryFn: () => jobsService.list(status),
     refetchInterval: 15_000,
+    select: (data) => data.items,
   });
 }
 
@@ -19,10 +21,22 @@ export function useJob(id: string | undefined) {
   });
 }
 
+/**
+ * Reads the full job detail (including company/role/workday_job_id) from the jobs
+ * list cache. GET /jobs/{id} omits those fields, so the detail page sources them
+ * from the list (which returns JobDetailResponse) when available.
+ */
+export function useJobFromList(id: string | undefined) {
+  const list = useJobsList();
+  const match = list.data?.find((job: JobDetailResponse) => job.id === id);
+  return match;
+}
+
 export function useCreateJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (workdayUrl: string) => jobsService.create(workdayUrl),
+    mutationFn: ({ workdayUrl, ai }: { workdayUrl: string; ai: boolean }) =>
+      jobsService.create(workdayUrl, ai),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
     },

@@ -16,7 +16,7 @@ import { getErrorMessage } from "@/lib/axios-error";
 export function DashboardPage() {
   const [addJobOpen, setAddJobOpen] = useState(false);
   const jobsQuery = useJobsList();
-  const jobs = jobsQuery.data?.items;
+  const jobs = jobsQuery.data;
 
   const stats = useDashboardStats(jobs);
   const insights = useAutomationInsights(jobs);

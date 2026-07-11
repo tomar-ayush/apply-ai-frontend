@@ -81,3 +81,18 @@ export const TaskStatus = {
   FAILED: "FAILED",
 } as const;
 export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];
+
+export const ResumeSection = {
+  PROFESSIONAL_SUMMARY: "professional_summary",
+  SKILLS: "skills",
+  WORK_EXPERIENCE: "work_experience",
+  PROJECTS: "projects",
+} as const;
+export type ResumeSection = (typeof ResumeSection)[keyof typeof ResumeSection];
+
+export const RESUME_SECTIONS: { value: ResumeSection; label: string }[] = [
+  { value: ResumeSection.PROFESSIONAL_SUMMARY, label: "Professional Summary" },
+  { value: ResumeSection.SKILLS, label: "Skills" },
+  { value: ResumeSection.WORK_EXPERIENCE, label: "Work Experience" },
+  { value: ResumeSection.PROJECTS, label: "Projects" },
+];

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { JobStatus } from "@/types/enums";
-import type { JobResponse } from "@/types/api";
+import type { JobDetailResponse } from "@/types/api";
 
-export function useDashboardStats(jobs: JobResponse[] | undefined) {
+export function useDashboardStats(jobs: JobDetailResponse[] | undefined) {
   return useMemo(() => {
     const list = jobs ?? [];
     return {

@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/apiClient";
-import type { JobListResponse, JobResponse } from "@/types/api";
+import type { JobDetailResponse, JobListResponse, JobResponse } from "@/types/api";
 import type { JobStatus } from "@/types/enums";
 
 export const jobsService = {
@@ -13,10 +13,10 @@ export const jobsService = {
     const { data } = await apiClient.get<JobResponse>(`/jobs/${id}`);
     return data;
   },
-  async create(workday_url: string): Promise<JobResponse> {
-    console.debug("[debug][jobsService.create] workday_url", workday_url);
+  async create(workday_url: string, ai: boolean): Promise<JobDetailResponse> {
+    console.debug("[debug][jobsService.create] workday_url", workday_url, "ai", ai);
 
-    const { data } = await apiClient.post<JobResponse>("/jobs", { workday_url });
+    const { data } = await apiClient.post<JobDetailResponse>("/jobs", { workday_url, ai });
     return data;
   },
   async remove(id: string): Promise<void> {

@@ -22,7 +22,7 @@ import { addJobSchema, type AddJobValues } from "@/features/jobs/schemas";
 import { useCreateJob } from "@/queries/useJobsQueries";
 import { useJobJd } from "@/queries/useJobJdQueries";
 import { getErrorMessage } from "@/lib/axios-error";
-import type { JobResponse } from "@/types/api";
+import type { JobDetailResponse } from "@/types/api";
 
 interface AddJobDialogProps {
   open: boolean;
@@ -32,7 +32,7 @@ interface AddJobDialogProps {
 export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
   const navigate = useNavigate();
   const createJob = useCreateJob();
-  const [createdJob, setCreatedJob] = useState<JobResponse | null>(null);
+  const [createdJob, setCreatedJob] = useState<JobDetailResponse | null>(null);
   const jdQuery = useJobJd(createdJob ?? undefined);
 
   const form = useForm<AddJobValues>({ resolver: zodResolver(addJobSchema), defaultValues: { workday_url: "" } });
@@ -46,11 +46,13 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const onSubmit = form.handleSubmit((values) => {
-    createJob.mutate(values.workday_url, {
-      onSuccess: (job) => setCreatedJob(job),
-    });
-  });
+  const onSubmit = (ai: boolean) =>
+    form.handleSubmit((values) => {
+      createJob.mutate(
+        { workdayUrl: values.workday_url, ai },
+        { onSuccess: (job) => setCreatedJob(job) }
+      );
+    })();
 
   const handleAddAnother = () => {
     setCreatedJob(null);
@@ -78,7 +80,7 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
         </DialogHeader>
 
         {!createdJob ? (
-          <form onSubmit={onSubmit} className="space-y-3">
+          <form className="space-y-3">
             <Field>
               <FieldLabel htmlFor="workday_url">Workday job listing URL</FieldLabel>
               <FieldContent>
@@ -91,9 +93,23 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
                     aria-invalid={!!form.formState.errors.workday_url}
                     {...form.register("workday_url")}
                   />
-                  <Button type="submit" disabled={createJob.isPending} className="shrink-0">
+                  <Button
+                    type="button"
+                    disabled={createJob.isPending}
+                    className="shrink-0"
+                    onClick={() => onSubmit(true)}
+                  >
                     <Sparkles className="size-4" />
-                    {createJob.isPending ? "Extracting…" : "Extract Job"}
+                    {createJob.isPending ? "Extracting…" : "AI Parse"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={createJob.isPending}
+                    className="shrink-0"
+                    onClick={() => onSubmit(false)}
+                  >
+                    {createJob.isPending ? "Extracting…" : "Normal Parse"}
                   </Button>
                 </div>
                 <FieldError errors={[form.formState.errors.workday_url]} />

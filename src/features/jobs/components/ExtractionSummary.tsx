@@ -1,8 +1,8 @@
 import { Loader2 } from "lucide-react";
-import type { JobJDResponse, JobResponse } from "@/types/api";
+import type { JobDetailResponse, JobJDResponse } from "@/types/api";
 
 interface ExtractionSummaryProps {
-  job: JobResponse;
+  job: JobDetailResponse;
   jd: JobJDResponse | undefined;
   isJdLoading: boolean;
 }

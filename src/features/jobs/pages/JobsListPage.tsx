@@ -12,9 +12,9 @@ import { AddJobDialog } from "@/features/jobs/components/AddJobDialog";
 import { getErrorMessage } from "@/lib/axios-error";
 import { JobStatus } from "@/types/enums";
 import { JOB_STATUS_MAP } from "@/lib/statusMaps";
-import type { JobResponse } from "@/types/api";
+import type { JobDetailResponse } from "@/types/api";
 
-const EMPTY_JOBS: JobResponse[] = [];
+const EMPTY_JOBS: JobDetailResponse[] = [];
 
 export function JobsListPage() {
   const [addJobOpen, setAddJobOpen] = useState(false);
@@ -27,7 +27,7 @@ export function JobsListPage() {
   const search = params.get("q") ?? "";
 
   const jobsQuery = useJobsList(status === "ALL" ? undefined : status);
-  const jobs = jobsQuery.data?.items ?? EMPTY_JOBS;
+  const jobs = jobsQuery.data ?? EMPTY_JOBS;
 
   const updateParam = (key: string, value: string) => {
     const next = new URLSearchParams(params);
@@ -42,7 +42,7 @@ export function JobsListPage() {
   );
 
   const visibleJobs = useMemo(() => {
-    let result: JobResponse[] = jobs;
+    let result: JobDetailResponse[] = jobs;
 
     if (company !== "ALL") {
       result = result.filter((j) => j.company === company);

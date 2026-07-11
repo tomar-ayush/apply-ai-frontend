@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { JobStatus } from "@/types/enums";
-import type { JobResponse } from "@/types/api";
+import type { JobDetailResponse } from "@/types/api";
 
 export interface AutomationInsight {
   id: string;
@@ -13,7 +13,7 @@ export interface AutomationInsight {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Derived, computed live from the current jobs list — there is no dedicated insights/notifications endpoint. */
-export function useAutomationInsights(jobs: JobResponse[] | undefined): AutomationInsight[] {
+export function useAutomationInsights(jobs: JobDetailResponse[] | undefined): AutomationInsight[] {
   return useMemo(() => {
     const list = jobs ?? [];
     const insights: AutomationInsight[] = [];

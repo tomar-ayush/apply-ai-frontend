@@ -10,11 +10,12 @@ import { JobHeader } from "@/features/job-details/components/JobHeader";
 import { StatusOverrideControl } from "@/features/job-details/components/StatusOverrideControl";
 import { JobTimeline } from "@/features/job-details/components/JobTimeline";
 import { JDSummaryPanel } from "@/features/job-details/components/JDSummaryPanel";
+import { JDQuestionsPanel } from "@/features/job-details/components/JDQuestionsPanel";
 import { ReferralTable } from "@/features/job-details/components/ReferralTable";
 import { ResumeSection } from "@/features/job-details/components/ResumeSection";
 import { WorkerStatusCard } from "@/features/job-details/components/WorkerStatusCard";
 import { WorkdayApplyCard } from "@/features/job-details/components/WorkdayApplyCard";
-import { useJob } from "@/queries/useJobsQueries";
+import { useJob, useJobFromList } from "@/queries/useJobsQueries";
 import { useJobJd } from "@/queries/useJobJdQueries";
 import { useJobReferrals } from "@/queries/useReferralsQueries";
 import { getErrorMessage } from "@/lib/axios-error";
@@ -22,6 +23,9 @@ import { getErrorMessage } from "@/lib/axios-error";
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const jobQuery = useJob(id);
+  // GET /jobs/{id} omits company/role/workday_job_id — pull them from the list
+  // cache (JobDetailResponse) or fall back to the JD, which still carries them.
+  const listJob = useJobFromList(id);
   const jdQuery = useJobJd(jobQuery.data);
   const referralsQuery = useJobReferrals(id);
 
@@ -52,10 +56,14 @@ export function JobDetailPage() {
   const job = jobQuery.data;
   if (!job) return null;
 
+  // GET /jobs/{id} omits company/role — prefer the list cache, then the JD.
+  const company = listJob?.company ?? jdQuery.data?.company ?? null;
+  const role = listJob?.role ?? jdQuery.data?.role ?? null;
+
   return (
     <div>
       <PageHeader
-        title={job.role || job.company || "Job"}
+        title={role || company || "Job"}
         pill="Workspace"
         actions={
           <Link to="/jobs" className="text-sm text-muted-foreground hover:text-foreground">
@@ -64,7 +72,7 @@ export function JobDetailPage() {
         }
       />
 
-      <JobHeader job={job} />
+      <JobHeader job={job} company={company} role={role} />
       <div className="p-6 space-y-6">
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -75,6 +83,7 @@ export function JobDetailPage() {
             </div>
 
             <JDSummaryPanel jobId={job.id} jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
+            <JDQuestionsPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
           </div>
 
           <div className="space-y-6">

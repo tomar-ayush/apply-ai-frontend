@@ -37,7 +37,7 @@ export function useUploadLatex() {
 export function useGenerateResume(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => resumeService.generate(jobId),
+    mutationFn: (sections: string[]) => resumeService.generate(jobId, sections),
     onSuccess: () => {
       // The AI resume is job-specific — invalidate only this job's ai copy.
       queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });

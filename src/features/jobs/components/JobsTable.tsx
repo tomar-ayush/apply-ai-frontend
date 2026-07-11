@@ -4,10 +4,10 @@ import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { relativeTime, initials } from "@/lib/format";
-import type { JobResponse } from "@/types/api";
+import type { JobDetailResponse } from "@/types/api";
 
 interface JobsTableProps {
-  jobs: JobResponse[];
+  jobs: JobDetailResponse[];
   isLoading: boolean;
   hasActiveFilters: boolean;
   onAddJob: () => void;
@@ -16,7 +16,7 @@ interface JobsTableProps {
 export function JobsTable({ jobs, isLoading, hasActiveFilters, onAddJob }: JobsTableProps) {
   const navigate = useNavigate();
 
-  const columns: DataTableColumn<JobResponse>[] = [
+  const columns: DataTableColumn<JobDetailResponse>[] = [
     {
       key: "company",
       header: "Company",

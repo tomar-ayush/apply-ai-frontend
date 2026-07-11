@@ -5,19 +5,24 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PDFComparisonPanel } from "@/components/shared/PDFComparisonPanel";
 import { LatexUploadDialog } from "@/features/job-details/components/LatexUploadDialog";
+import { GenerateResumeDialog } from "@/features/job-details/components/GenerateResumeDialog";
 import { useJobResume, useGenerateResume } from "@/queries/useResumeQueries";
 import { getErrorMessage } from "@/lib/axios-error";
-import { ResumeVersion } from "@/types/enums";
+import { ResumeVersion, type ResumeSection as ResumeSectionValue } from "@/types/enums";
 
 export function ResumeSection({ jobId }: { jobId: string }) {
   const originalQuery = useJobResume(jobId, ResumeVersion.ORIGINAL);
   const optimizedQuery = useJobResume(jobId, ResumeVersion.OPTIMIZED);
   const generateResume = useGenerateResume(jobId);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
 
-  const handleGenerate = () => {
-    generateResume.mutate(undefined, {
-      onSuccess: () => toast.success("Optimized resume generated"),
+  const handleGenerateConfirm = (sections: ResumeSectionValue[]) => {
+    generateResume.mutate(sections, {
+      onSuccess: () => {
+        toast.success("Optimized resume generated");
+        setGenerateOpen(false);
+      },
       onError: (error) => toast.error(getErrorMessage(error, "Could not generate an optimized resume")),
     });
   };
@@ -47,7 +52,7 @@ export function ResumeSection({ jobId }: { jobId: string }) {
             <FileUp className="size-3.5" />
             Upload LaTeX
           </Button>
-          <Button size="sm" variant="outline" onClick={handleGenerate} disabled={generateResume.isPending}>
+          <Button size="sm" variant="outline" onClick={() => setGenerateOpen(true)} disabled={generateResume.isPending}>
             <Sparkles className="size-3.5" />
             {generateResume.isPending ? "Optimizing…" : "Generate Optimized Resume"}
           </Button>
@@ -63,6 +68,12 @@ export function ResumeSection({ jobId }: { jobId: string }) {
       </div>
 
       <LatexUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} />
+      <GenerateResumeDialog
+        open={generateOpen}
+        onOpenChange={setGenerateOpen}
+        onConfirm={handleGenerateConfirm}
+        isPending={generateResume.isPending}
+      />
     </div>
   );
 }

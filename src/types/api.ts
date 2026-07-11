@@ -81,7 +81,9 @@ export interface DownloadResumeResponse {
   message: string;
 }
 
-export interface JobResponse {
+// Full job shape returned by GET /jobs (list) and POST /jobs — includes the
+// denormalized company/role/workday_job_id fields.
+export interface JobDetailResponse {
   id: string;
   user_id: string;
   company: string | null;
@@ -95,19 +97,37 @@ export interface JobResponse {
   updated_at: string;
 }
 
+// Detail-by-id shape returned by GET /jobs/{id} and PATCH /jobs/{id}/status.
+// NOTE: company/role/workday_job_id are intentionally NOT returned here — source
+// them from the jobs list (JobDetailResponse) or the JD instead.
+export interface JobResponse {
+  id: string;
+  user_id: string;
+  workday_url: string;
+  status: JobStatus;
+  optimized_resume_pdf_url: string | null;
+  optimized_resume_latex_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface JobListResponse {
-  items: JobResponse[];
+  items: JobDetailResponse[];
   total: number;
 }
 
 export interface JobJDResponse {
   id: string;
   job_id: string;
+  company: string | null;
+  role: string | null;
+  workday_job_id: string | null;
   raw_text: string | null;
   skills: Record<string, unknown> | null;
   keywords: string[] | null;
   team_signals: Record<string, unknown> | null;
   llm_summary: string | null;
+  learning: Record<string, string[]> | null;
   created_at: string;
 }
 

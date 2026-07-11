@@ -6,10 +6,10 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { relativeTime } from "@/lib/format";
 import { TERMINAL_JOB_STATUSES } from "@/types/enums";
-import type { JobResponse } from "@/types/api";
+import type { JobDetailResponse } from "@/types/api";
 
 interface RecentActivePipelinesTableProps {
-  jobs: JobResponse[];
+  jobs: JobDetailResponse[];
   isLoading: boolean;
   onAddJob: () => void;
 }
@@ -26,7 +26,7 @@ export function RecentActivePipelinesTable({ jobs, isLoading, onAddJob }: Recent
     [jobs]
   );
 
-  const columns: DataTableColumn<JobResponse>[] = [
+  const columns: DataTableColumn<JobDetailResponse>[] = [
     { key: "company", header: "Company", render: (job) => job.company || "—" },
     { key: "role", header: "Role", render: (job) => job.role || "—" },
     { key: "status", header: "Status", render: (job) => <StatusBadge kind="job" status={job.status} /> },

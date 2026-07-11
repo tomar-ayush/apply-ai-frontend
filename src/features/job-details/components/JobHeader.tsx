@@ -8,7 +8,14 @@ import { useDeleteJob } from "@/queries/useJobsQueries";
 import { toast } from "sonner";
 import type { JobResponse } from "@/types/api";
 
-export function JobHeader({ job }: { job: JobResponse }) {
+interface JobHeaderProps {
+  job: JobResponse;
+  // GET /jobs/{id} omits these — pass them from the list cache or JD.
+  company?: string | null;
+  role?: string | null;
+}
+
+export function JobHeader({ job, company, role }: JobHeaderProps) {
   const navigate = useNavigate();
   const deleteJob = useDeleteJob();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -27,11 +34,11 @@ export function JobHeader({ job }: { job: JobResponse }) {
     <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
       <div className="flex min-w-0 items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-sm font-medium text-muted-foreground">
-          {initials(job.company || "?")}
+          {initials(company || "?")}
         </span>
         <div className="min-w-0">
-          <h2 className="truncate text-base font-medium text-foreground">{job.role || "Untitled role"}</h2>
-          <p className="text-sm text-muted-foreground">{job.company || "Unknown company"}</p>
+          <h2 className="truncate text-base font-medium text-foreground">{role || "Untitled role"}</h2>
+          <p className="text-sm text-muted-foreground">{company || "Unknown company"}</p>
           <a
             href={job.workday_url}
             target="_blank"
