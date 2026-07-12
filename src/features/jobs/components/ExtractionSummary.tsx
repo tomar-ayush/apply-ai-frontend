@@ -1,13 +1,24 @@
 import { Loader2 } from "lucide-react";
-import type { JobDetailResponse, JobJDResponse } from "@/types/api";
+import { Input } from "@/components/ui/input";
+import type { JobJDResponse } from "@/types/api";
 
 interface ExtractionSummaryProps {
-  job: JobDetailResponse;
   jd: JobJDResponse | undefined;
   isJdLoading: boolean;
+  company: string;
+  role: string;
+  onCompanyChange: (value: string) => void;
+  onRoleChange: (value: string) => void;
 }
 
-export function ExtractionSummary({ job, jd, isJdLoading }: ExtractionSummaryProps) {
+export function ExtractionSummary({
+  jd,
+  isJdLoading,
+  company,
+  role,
+  onCompanyChange,
+  onRoleChange,
+}: ExtractionSummaryProps) {
   return (
     <div className="space-y-4 border-t border-border pt-4">
       <p className="font-mono text-[11px] tracking-wide text-muted-foreground uppercase">Extraction output summary</p>
@@ -15,15 +26,21 @@ export function ExtractionSummary({ job, jd, isJdLoading }: ExtractionSummaryPro
       <div className="grid grid-cols-2 gap-3">
         <div>
           <p className="mb-1 font-mono text-[11px] tracking-wide text-muted-foreground uppercase">Parsed company</p>
-          <p className="rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-sm text-foreground">
-            {job.company || "—"}
-          </p>
+          <Input
+            value={company}
+            onChange={(e) => onCompanyChange(e.target.value)}
+            placeholder="Company"
+            className="text-sm"
+          />
         </div>
         <div>
           <p className="mb-1 font-mono text-[11px] tracking-wide text-muted-foreground uppercase">Parsed role title</p>
-          <p className="rounded-lg border border-border bg-muted/30 px-2.5 py-1.5 text-sm text-foreground">
-            {job.role || "—"}
-          </p>
+          <Input
+            value={role}
+            onChange={(e) => onRoleChange(e.target.value)}
+            placeholder="Role"
+            className="text-sm"
+          />
         </div>
       </div>
 

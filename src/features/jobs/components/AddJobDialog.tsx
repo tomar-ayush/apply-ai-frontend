@@ -20,7 +20,7 @@ import { ExtractionProgress } from "@/features/jobs/components/ExtractionProgres
 import { ExtractionSummary } from "@/features/jobs/components/ExtractionSummary";
 import { addJobSchema, type AddJobValues } from "@/features/jobs/schemas";
 import { useCreateJob } from "@/queries/useJobsQueries";
-import { useJobJd } from "@/queries/useJobJdQueries";
+import { useJobJd, useUpdateJobJd } from "@/queries/useJobJdQueries";
 import { getErrorMessage } from "@/lib/axios-error";
 import type { JobDetailResponse } from "@/types/api";
 
@@ -34,6 +34,9 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
   const createJob = useCreateJob();
   const [createdJob, setCreatedJob] = useState<JobDetailResponse | null>(null);
   const jdQuery = useJobJd(createdJob ?? undefined);
+  const updateJd = useUpdateJobJd(createdJob?.id ?? "");
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
 
   const form = useForm<AddJobValues>({ resolver: zodResolver(addJobSchema), defaultValues: { workday_url: "" } });
 
@@ -45,6 +48,17 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Seed editable fields from the parsed job once it's created.
+  useEffect(() => {
+    if (createdJob) {
+      setCompany(createdJob.company ?? "");
+      setRole(createdJob.role ?? "");
+    }
+  }, [createdJob]);
+
+  const isDirty =
+    !!createdJob && (company !== (createdJob.company ?? "") || role !== (createdJob.role ?? ""));
 
   const onSubmit = (ai: boolean) =>
     form.handleSubmit((values) => {
@@ -64,6 +78,22 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
     if (!createdJob) return;
     onOpenChange(false);
     navigate(`/jobs/${createdJob.id}`);
+  };
+
+  const handleUpdateJob = () => {
+    if (!createdJob) return;
+    updateJd.mutate(
+      { company: company || null, role: role || null },
+      {
+        onSuccess: (data) => {
+          setCreatedJob({ ...createdJob, company: data.company, role: data.role });
+          setCompany(data.company ?? "");
+          setRole(data.role ?? "");
+          onOpenChange(false);
+          navigate(`/jobs/${createdJob.id}`);
+        },
+      }
+    );
   };
 
   return (
@@ -128,7 +158,14 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
               <CircleCheck className="size-4 shrink-0" />
               Job added successfully.
             </div>
-            <ExtractionSummary job={createdJob} jd={jdQuery.data} isJdLoading={jdQuery.isLoading} />
+            <ExtractionSummary
+              jd={jdQuery.data}
+              isJdLoading={jdQuery.isLoading}
+              company={company}
+              role={role}
+              onCompanyChange={setCompany}
+              onRoleChange={setRole}
+            />
           </div>
         )}
 
@@ -137,7 +174,13 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
             <Button variant="ghost" onClick={handleAddAnother}>
               Add another
             </Button>
-            <Button onClick={handleViewJob}>View Job</Button>
+            {isDirty ? (
+              <Button onClick={handleUpdateJob} disabled={updateJd.isPending}>
+                {updateJd.isPending ? "Updating…" : "Update Job"}
+              </Button>
+            ) : (
+              <Button onClick={handleViewJob}>View Job</Button>
+            )}
           </DialogFooter>
         )}
       </DialogContent>

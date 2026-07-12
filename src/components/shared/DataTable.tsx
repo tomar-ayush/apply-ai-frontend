@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TableSkeleton } from "@/components/shared/LoadingSkeletons";
@@ -64,6 +64,35 @@ export function DataTable<T>({
     });
   };
 
+  // FLIP animation: when rows reorder (e.g. a referral's priority changes after a
+  // status update), glide them to their new positions instead of snapping. We
+  // measure each row's Y before paint, then animate a transform from old→new.
+  const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
+  const prevPositions = useRef<Map<string, number>>(new Map());
+
+  useLayoutEffect(() => {
+    const newPositions = new Map<string, number>();
+    rowRefs.current.forEach((el, id) => {
+      newPositions.set(id, el.offsetTop);
+    });
+
+    newPositions.forEach((newTop, id) => {
+      const prevTop = prevPositions.current.get(id);
+      const el = rowRefs.current.get(id);
+      if (prevTop === undefined || prevTop === newTop || !el) return;
+      const delta = prevTop - newTop;
+      el.animate(
+        [
+          { transform: `translateY(${delta}px)` },
+          { transform: "translateY(0)" },
+        ],
+        { duration: 280, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+      );
+    });
+
+    prevPositions.current = newPositions;
+  }, [sorted]);
+
   if (isLoading) {
     return <TableSkeleton columns={columns.length} />;
   }
@@ -110,9 +139,15 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {sorted.map((row) => (
+          {sorted.map((row) => {
+            const rowId = getRowId(row);
+            return (
             <tr
-              key={getRowId(row)}
+              key={rowId}
+              ref={(el) => {
+                if (el) rowRefs.current.set(rowId, el);
+                else rowRefs.current.delete(rowId);
+              }}
               onClick={() => onRowClick?.(row)}
               className={cn(
                 "transition-colors",
@@ -125,7 +160,8 @@ export function DataTable<T>({
                 </td>
               ))}
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { toast } from "sonner";
 import { Sparkles, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ interface ReferralTableProps {
 }
 
 export function ReferralTable({ jobId, referrals, isLoading }: ReferralTableProps) {
-  console.log("referrals", referrals);
   const generateReferrals = useGenerateReferrals(jobId);
   const deleteReferral = useDeleteReferral(jobId);
 
@@ -38,20 +36,6 @@ export function ReferralTable({ jobId, referrals, isLoading }: ReferralTableProp
       onError: (error) => toast.error(getErrorMessage(error, "Could not delete referral")),
     });
   };
-
-  // Lower priority number = better candidate to contact first (set by referral generation);
-  // referrals without a priority sort to the end. created_at is used as a stable tiebreaker
-  // so that changing a referral's status doesn't reshuffle rows with equal priority.
-  const sortedReferrals = useMemo(
-    () =>
-      [...referrals].sort((a, b) => {
-        const ap = a.priority ?? Number.POSITIVE_INFINITY;
-        const bp = b.priority ?? Number.POSITIVE_INFINITY;
-        if (ap !== bp) return ap - bp;
-        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      }),
-    [referrals]
-  );
 
   const columns: DataTableColumn<ReferralResponse>[] = [
 
@@ -112,7 +96,7 @@ export function ReferralTable({ jobId, referrals, isLoading }: ReferralTableProp
         </Button>
       </div>
       <DataTable
-        data={sortedReferrals}
+        data={referrals}
         columns={columns}
         getRowId={(r) => r.id}
         isLoading={isLoading}

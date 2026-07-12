@@ -1,15 +1,10 @@
-import { toast } from "sonner";
-import { RefreshCw, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useReparseJd } from "@/queries/useJobJdQueries";
-import { getErrorMessage } from "@/lib/axios-error";
 import { JobStatus } from "@/types/enums";
 import type { JobJDResponse } from "@/types/api";
 
 interface JDSummaryPanelProps {
-  jobId: string;
   jobStatus: JobStatus;
   jd: JobJDResponse | undefined;
   isLoading: boolean;
@@ -31,26 +26,13 @@ function TagGroup({ title, tags }: { title: string; tags: string[] }) {
   );
 }
 
-export function JDSummaryPanel({ jobId, jobStatus, jd, isLoading }: JDSummaryPanelProps) {
-  const reparse = useReparseJd(jobId);
-
-  const handleReparse = () => {
-    reparse.mutate(undefined, {
-      onSuccess: () => toast.success("Job description re-parsed"),
-      onError: (error) => toast.error(getErrorMessage(error, "Could not re-parse this job description")),
-    });
-  };
-
+export function JDSummaryPanel({ jobStatus, jd, isLoading }: JDSummaryPanelProps) {
   const skills = (jd?.skills?.required as string[] | undefined) ?? [];
 
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <p className="text-sm font-medium text-foreground">Job Description</p>
-        <Button size="sm" variant="outline" onClick={handleReparse} disabled={reparse.isPending || jobStatus === JobStatus.NEW}>
-          <RefreshCw className={reparse.isPending ? "size-3.5 animate-spin" : "size-3.5"} />
-          Re-parse JD
-        </Button>
       </div>
 
       <div className="space-y-4 p-4">

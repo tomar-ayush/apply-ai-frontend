@@ -1,11 +1,13 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { isAxiosError } from "axios";
+import { toast } from "sonner";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ErrorBanner } from "@/components/shared/ErrorBanner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { JobDetailSkeleton } from "@/components/shared/LoadingSkeletons";
+import { Button } from "@/components/ui/button";
 import { JobHeader } from "@/features/job-details/components/JobHeader";
 import { StatusOverrideControl } from "@/features/job-details/components/StatusOverrideControl";
 import { JobTimeline } from "@/features/job-details/components/JobTimeline";
@@ -16,7 +18,8 @@ import { ResumeSection } from "@/features/job-details/components/ResumeSection";
 import { WorkerStatusCard } from "@/features/job-details/components/WorkerStatusCard";
 import { WorkdayApplyCard } from "@/features/job-details/components/WorkdayApplyCard";
 import { useJob, useJobFromList } from "@/queries/useJobsQueries";
-import { useJobJd } from "@/queries/useJobJdQueries";
+import { JobStatus } from "@/types/enums";
+import { useJobJd, useReparseJd } from "@/queries/useJobJdQueries";
 import { useJobReferrals } from "@/queries/useReferralsQueries";
 import { getErrorMessage } from "@/lib/axios-error";
 
@@ -28,6 +31,7 @@ export function JobDetailPage() {
   const listJob = useJobFromList(id);
   const jdQuery = useJobJd(jobQuery.data);
   const referralsQuery = useJobReferrals(id);
+  const reparse = useReparseJd(id ?? "");
 
   if (jobQuery.isLoading) {
     return (
@@ -66,9 +70,25 @@ export function JobDetailPage() {
         title={role || company || "Job"}
         pill="Workspace"
         actions={
-          <Link to="/jobs" className="text-sm text-muted-foreground hover:text-foreground">
-            ← All jobs
-          </Link>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={reparse.isPending || jobQuery.data?.status === JobStatus.NEW}
+              onClick={() =>
+                reparse.mutate(undefined, {
+                  onSuccess: () => toast.success("Job description re-parsed"),
+                  onError: (error) => toast.error(getErrorMessage(error, "Could not re-parse this job description")),
+                })
+              }
+            >
+              <Sparkles className={reparse.isPending ? "size-3.5 animate-spin" : "size-3.5"} />
+              {reparse.isPending ? "Re-parsing…" : "AI Reparse"}
+            </Button>
+            <Link to="/jobs" className="text-sm text-muted-foreground hover:text-foreground">
+              ← All jobs
+            </Link>
+          </div>
         }
       />
 
@@ -82,14 +102,11 @@ export function JobDetailPage() {
               <StatusOverrideControl jobId={job.id} status={job.status} />
             </div>
 
-            <JDSummaryPanel jobId={job.id} jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
+            <JDSummaryPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
             <JDQuestionsPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
           </div>
 
           <div className="space-y-6">
-            {referralsQuery.isError && (
-              <ErrorBanner message={getErrorMessage(referralsQuery.error, "Could not load referrals.")} onRetry={() => referralsQuery.refetch()} />
-            )}
             <JobTimeline job={job} />
             <WorkerStatusCard />
             <WorkdayApplyCard job={job} />
@@ -97,7 +114,9 @@ export function JobDetailPage() {
         </div>
         <div className="flex flex-col gap-6">
           <ReferralTable jobId={job.id} referrals={referralsQuery.data ?? []} isLoading={referralsQuery.isLoading} />
-
+          {referralsQuery.isError && (
+              <ErrorBanner message={getErrorMessage(referralsQuery.error, "Could not load referrals.")} onRetry={() => referralsQuery.refetch()} />
+            )}
           <ResumeSection jobId={job.id} />
         </div>
       </div>

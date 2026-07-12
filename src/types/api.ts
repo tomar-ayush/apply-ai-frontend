@@ -131,6 +131,11 @@ export interface JobJDResponse {
   created_at: string;
 }
 
+export interface UpdateJobJdRequest {
+  company?: string | null;
+  role?: string | null;
+}
+
 export interface ReferralResponse {
   id: string;
   job_id: string;
