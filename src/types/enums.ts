@@ -90,9 +90,9 @@ export const ResumeSection = {
 } as const;
 export type ResumeSection = (typeof ResumeSection)[keyof typeof ResumeSection];
 
-export const RESUME_SECTIONS: { value: ResumeSection; label: string }[] = [
+export const RESUME_SECTIONS: { value: ResumeSection; label: string; recommended?: boolean }[] = [
   { value: ResumeSection.PROFESSIONAL_SUMMARY, label: "Professional Summary" },
   { value: ResumeSection.SKILLS, label: "Skills" },
-  { value: ResumeSection.WORK_EXPERIENCE, label: "Work Experience" },
+  { value: ResumeSection.WORK_EXPERIENCE, label: "Work Experience", recommended: true },
   { value: ResumeSection.PROJECTS, label: "Projects" },
 ];

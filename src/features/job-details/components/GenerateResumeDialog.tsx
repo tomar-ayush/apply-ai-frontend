@@ -68,7 +68,12 @@ export function GenerateResumeDialog({
                                 checked={selected.includes(section.value)}
                                 onCheckedChange={() => toggle(section.value)}
                             />
-                            {section.label}
+                            <span>{section.label}</span>
+                            {section.recommended && (
+                                <span className="ml-auto rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-600">
+                                    Recommended
+                                </span>
+                            )}
                         </label>
                     ))}
                 </div>
