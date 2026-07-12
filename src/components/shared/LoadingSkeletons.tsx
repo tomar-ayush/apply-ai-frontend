@@ -1,17 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function StatCardSkeleton() {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="size-4 rounded" />
-      </div>
-      <Skeleton className="mt-3 h-8 w-16" />
-    </div>
-  );
-}
-
 export function TableRowSkeleton({ columns = 4 }: { columns?: number }) {
   return (
     <div className="flex items-center gap-4 px-4 py-3">

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Document, Page } from "react-pdf";
-import { ChevronLeft, ChevronRight, FileX2, Loader2, Maximize2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FileX2, Loader2, Maximize2, X } from "lucide-react";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "@/lib/pdf-worker";
@@ -113,6 +113,18 @@ export function PDFComparisonPanel({
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{panel.label}</p>
             <div className="flex items-center gap-2">
+              {panel.url && (
+                <a
+                  href={panel.url}
+                  download
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Download"
+                  className="inline-flex size-6 items-center justify-center rounded-[min(var(--radius-md),10px)] text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <Download className="size-3.5" />
+                </a>
+              )}
               {panel.url && (
                 <Button size="xs" variant="ghost" onClick={() => setExpandedUrl(panel.url ?? null)} title="Expand">
                   <Maximize2 className="size-3.5" />
