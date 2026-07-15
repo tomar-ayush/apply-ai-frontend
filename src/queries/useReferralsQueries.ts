@@ -2,13 +2,24 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { referralsService } from "@/services/referralsService";
 import { tasksService } from "@/services/tasksService";
 import { queryKeys } from "@/queries/queryKeys";
-import type { ConnectReferralRequest, UpdateReferralRequest } from "@/types/api";
+import type { ConnectReferralRequest, CreateReferralsRequest, UpdateReferralRequest } from "@/types/api";
 
 export function useJobReferrals(jobId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.jobReferrals(jobId ?? ""),
     queryFn: () => referralsService.listByJob(jobId!),
     enabled: !!jobId,
+  });
+}
+
+export function useCreateReferrals(jobId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateReferralsRequest) => referralsService.createMany(jobId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.job(jobId) });
+    },
   });
 }
 

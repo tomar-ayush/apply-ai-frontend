@@ -27,8 +27,16 @@ export function useJob(id: string | undefined) {
  * from the list (which returns JobDetailResponse) when available.
  */
 export function useJobFromList(id: string | undefined) {
-  const list = useJobsList();
-  const match = list.data?.find((job: JobDetailResponse) => job.id === id);
+  // Read the full job detail (company/role/workday_job_id) from the jobs list
+  // cache WITHOUT subscribing to the list's 15s polling interval — otherwise the
+  // job-detail page would keep hitting /jobs even though it's not the jobs page.
+  // `enabled: false` keeps the query reactive to cache updates but never refetches.
+  const list = useQuery({
+    queryKey: queryKeys.jobs(),
+    queryFn: () => jobsService.list(),
+    enabled: false,
+  });
+  const match = list.data?.items?.find((job: JobDetailResponse) => job.id === id);
   return match;
 }
 

@@ -125,7 +125,7 @@ export interface JobJDResponse {
   raw_text: string | null;
   skills: Record<string, unknown> | null;
   keywords: string[] | null;
-  team_signals: Record<string, unknown> | null;
+  extracted_department: string[] | null;
   llm_summary: string | null;
   learning: Record<string, string[]> | null;
   created_at: string;
@@ -146,6 +146,16 @@ export interface ReferralResponse {
   asked_at: string | null;
   responded_at: string | null;
   created_at: string;
+}
+
+export interface CreateReferralRequest {
+  name: string;
+  linkedin_url?: string | null;
+  priority?: number;
+}
+
+export interface CreateReferralsRequest {
+  referrals: CreateReferralRequest[];
 }
 
 export interface UpdateReferralRequest {

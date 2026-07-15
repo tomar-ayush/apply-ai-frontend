@@ -2,6 +2,7 @@ import { apiClient } from "@/services/apiClient";
 import type {
   ConnectReferralRequest,
   ConnectReferralResponse,
+  CreateReferralsRequest,
   GenerateReferralsResponse,
   ReferralResponse,
   UpdateReferralRequest,
@@ -10,6 +11,10 @@ import type {
 export const referralsService = {
   async listByJob(jobId: string): Promise<ReferralResponse[]> {
     const { data } = await apiClient.get<ReferralResponse[]>(`/jobs/${jobId}/referrals`);
+    return data;
+  },
+  async createMany(jobId: string, payload: CreateReferralsRequest): Promise<ReferralResponse[]> {
+    const { data } = await apiClient.post<ReferralResponse[]>(`/jobs/${jobId}/referrals`, payload);
     return data;
   },
   async generate(jobId: string): Promise<GenerateReferralsResponse> {
