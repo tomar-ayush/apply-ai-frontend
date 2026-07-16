@@ -113,7 +113,7 @@ export function JobDetailPage() {
           </div>
         </div>
         <div className="flex flex-col gap-6">
-          <ReferralTable jobId={job.id} referrals={referralsQuery.data ?? []} isLoading={referralsQuery.isLoading} queries={jdQuery.data?.extracted_department} />
+          <ReferralTable jobId={job.id} referrals={referralsQuery.data ?? []} isLoading={referralsQuery.isLoading} queries={jdQuery.data?.extracted_department} company={company} />
           {referralsQuery.isError && (
               <ErrorBanner message={getErrorMessage(referralsQuery.error, "Could not load referrals.")} onRetry={() => referralsQuery.refetch()} />
             )}

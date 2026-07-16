@@ -27,6 +27,7 @@ interface ReferralTableProps {
   referrals: ReferralResponse[];
   isLoading: boolean;
   queries: string[] | null | undefined;
+  company?: string | null;
 }
 
 interface ParsedReferral extends CreateReferralRequest {
@@ -136,7 +137,7 @@ function parseReferrals(text: string): ParsedReferral[] {
   return results;
 }
 
-export function ReferralTable({ jobId, referrals, isLoading, queries }: ReferralTableProps) {
+export function ReferralTable({ jobId, referrals, isLoading, queries, company }: ReferralTableProps) {
   const generateReferrals = useGenerateReferrals(jobId);
   const deleteReferral = useDeleteReferral(jobId);
   const createReferrals = useCreateReferrals(jobId);
@@ -225,7 +226,7 @@ export function ReferralTable({ jobId, referrals, isLoading, queries }: Referral
       header: "",
       render: (r) =>
         r.status === ReferralStatus.NOT_CONTACTED && r.linkedin_url ? (
-          <AskForReferralButton jobId={jobId} referralId={r.id} name={r.name} linkedinUrl={r.linkedin_url} />
+          <AskForReferralButton jobId={jobId} referralId={r.id} name={r.name} linkedinUrl={r.linkedin_url} company={company} />
         ) : null,
     },
     {

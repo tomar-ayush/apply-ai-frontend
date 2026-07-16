@@ -20,9 +20,10 @@ interface AskForReferralButtonProps {
   referralId: string;
   name: string;
   linkedinUrl: string;
+  company?: string | null;
 }
 
-export function AskForReferralButton({ jobId, referralId, name, linkedinUrl }: AskForReferralButtonProps) {
+export function AskForReferralButton({ jobId, referralId, name, linkedinUrl, company }: AskForReferralButtonProps) {
   const [workerUrl] = useWorkerUrl();
   const health = useWorkerHealth(workerUrl);
   const isWorkerHealthy = health.data?.status === "ok";
@@ -30,7 +31,8 @@ export function AskForReferralButton({ jobId, referralId, name, linkedinUrl }: A
 
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState(
-    `Hi ${name}, I'm exploring opportunities and would love to connect!`
+    // `Hi ${name}, I'm exploring opportunities and would love to connect!`
+    `Hi ${name}\n\nI came across the ${company ? `${company} ` : ""}role and I'm really interested. I'd appreciate a referral if you feel my profile fits this role well.`
   );
 
   const disabledReason = !workerUrl
