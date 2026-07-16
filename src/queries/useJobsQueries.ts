@@ -23,18 +23,17 @@ export function useJob(id: string | undefined) {
 
 /**
  * Reads the full job detail (including company/role/workday_job_id) from the jobs
- * list cache. GET /jobs/{id} omits those fields, so the detail page sources them
- * from the list (which returns JobDetailResponse) when available.
+ * list. GET /jobs/{id} omits those fields, so the detail page sources them from
+ * the list (JobDetailResponse), which denormalizes them — even for NEW jobs.
  */
 export function useJobFromList(id: string | undefined) {
-  // Read the full job detail (company/role/workday_job_id) from the jobs list
-  // cache WITHOUT subscribing to the list's 15s polling interval — otherwise the
-  // job-detail page would keep hitting /jobs even though it's not the jobs page.
-  // `enabled: false` keeps the query reactive to cache updates but never refetches.
+  // Fetch the list on demand (no refetchInterval) so the detail page always has
+  // company/role, even on direct navigation. This does NOT inherit the jobs page's
+  // 15s polling because that interval lives on the useJobsList observer, not here.
   const list = useQuery({
     queryKey: queryKeys.jobs(),
     queryFn: () => jobsService.list(),
-    enabled: false,
+    enabled: !!id,
   });
   const match = list.data?.items?.find((job: JobDetailResponse) => job.id === id);
   return match;
