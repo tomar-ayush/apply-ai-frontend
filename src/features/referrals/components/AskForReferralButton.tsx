@@ -31,8 +31,7 @@ export function AskForReferralButton({ jobId, referralId, name, linkedinUrl, com
 
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState(
-    // `Hi ${name}, I'm exploring opportunities and would love to connect!`
-    `Hi ${name}\n\nI came across the ${company ? `${company} ` : ""}role and I'm really interested. I'd appreciate a referral if you feel my profile fits this role well.`
+    `Hi ${name}\n\nI came across the Software Engineer role at ${company ?? "your company"}. I'm a CS grad and currently interning at Morgan Stanley with 1yr of backend experience\nI'd appreciate a referral if you feel my profile fits this role well\n\nid: 2026-14043\nlink:https://tinyurl.com/5jm6c9xh\nCV: https://tinyurl.com/2jawcfcb`
   );
 
   const disabledReason = !workerUrl
@@ -78,6 +77,12 @@ export function AskForReferralButton({ jobId, referralId, name, linkedinUrl, com
 
           <Textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4} />
 
+
+          <div className="flex justify-end text-xs text-muted-foreground">
+            <span className={message.length > 300 ? "text-destructive" : undefined}>
+              {message.length}/300
+            </span>
+          </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
