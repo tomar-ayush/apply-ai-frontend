@@ -24,7 +24,8 @@ export function WorkdayApplyCard({ job }: { job: JobResponse }) {
   const triggerWorkday = useTriggerWorkday(job.id);
   const taskStatus = useTaskStatus(taskId);
 
-  const isReady = job.status === JobStatus.READY_TO_APPLY;
+  const isReady =
+    job.status === JobStatus.REFERRAL_RECEIVED || job.status === JobStatus.REFERRAL_NOT_RECEIVED;
   const canRun = isReady && !!workerUrl && isWorkerHealthy && !triggerWorkday.isPending;
 
   const disabledReason = !workerUrl
@@ -32,7 +33,7 @@ export function WorkdayApplyCard({ job }: { job: JobResponse }) {
     : !isWorkerHealthy
       ? "The automation worker must be healthy before running automation."
       : !isReady
-        ? "Job must be Ready To Apply before automation can run."
+        ? "Job must have a referral outcome (received or not received) before automation can run."
         : undefined;
 
   const handleRun = () => {

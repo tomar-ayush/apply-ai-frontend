@@ -105,7 +105,7 @@ export function LLMSettingsSection({ form, hasLlmApiKey, savedProvider }: LLMSet
         {selectedProvider === LLMProvider.OPENROUTER && (
           <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
             OpenRouter requires a model. Use any slug from{" "}
-            <span className="font-mono">openrouter.ai/models</span>.
+            <span className="font-mono">openrouter.ai/models</span>
           </p>
         )}
 

@@ -7,7 +7,15 @@ import { JOB_STATUS_MAP } from "@/lib/statusMaps";
 import { VALID_JOB_TRANSITIONS, type JobStatus } from "@/types/enums";
 import { useUpdateJobStatus } from "@/queries/useJobsQueries";
 
-export function StatusOverrideControl({ jobId, status }: { jobId: string; status: JobStatus }) {
+export function StatusOverrideControl({
+  jobId,
+  status,
+  referralReceived,
+}: {
+  jobId: string;
+  status: JobStatus;
+  referralReceived?: boolean;
+}) {
   const updateStatus = useUpdateJobStatus(jobId);
   const [pendingStatus, setPendingStatus] = useState<JobStatus | null>(null);
 
@@ -19,6 +27,12 @@ export function StatusOverrideControl({ jobId, status }: { jobId: string; status
       onSuccess: () => {
         toast.success(`Status updated to ${JOB_STATUS_MAP[pendingStatus].label}`);
         setPendingStatus(null);
+      {referralReceived && (
+        <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-transparent bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium tracking-wide uppercase text-emerald-400">
+          <span className="size-1.5 shrink-0 rounded-full bg-emerald-500" />
+          Referral received
+        </span>
+      )}
       },
       onError: () => toast.error("Could not update status"),
     });

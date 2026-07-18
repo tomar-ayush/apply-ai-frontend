@@ -19,12 +19,8 @@ const COLOR_FAMILIES = {
 export const JOB_STATUS_MAP: Record<JobStatusT, StatusVisual> = {
   [JobStatus.NEW]: { label: "New", ...COLOR_FAMILIES.zinc },
   [JobStatus.JD_PARSED]: { label: "JD Parsed", ...COLOR_FAMILIES.zinc },
-  [JobStatus.REFERRAL_IN_PROGRESS]: { label: "Referral In Progress", ...COLOR_FAMILIES.amber },
-  [JobStatus.WAITING_FOR_REFERRAL]: { label: "Waiting Referral", ...COLOR_FAMILIES.amber },
   [JobStatus.REFERRAL_RECEIVED]: { label: "Referral Received", ...COLOR_FAMILIES.emerald },
-  [JobStatus.RESUME_GENERATED]: { label: "Resume Ready", ...COLOR_FAMILIES.indigo },
-  [JobStatus.READY_TO_APPLY]: { label: "Ready To Apply", ...COLOR_FAMILIES.indigo },
-  [JobStatus.WORKDAY_RUNNING]: { label: "Applying…", ...COLOR_FAMILIES.blue },
+  [JobStatus.REFERRAL_NOT_RECEIVED]: { label: "Referral Not Received", ...COLOR_FAMILIES.rose },
   [JobStatus.APPLIED]: { label: "Applied", ...COLOR_FAMILIES.emerald },
   [JobStatus.OA]: { label: "Online Assessment", ...COLOR_FAMILIES.blue },
   [JobStatus.INTERVIEW]: { label: "Interviewing", ...COLOR_FAMILIES.blue },

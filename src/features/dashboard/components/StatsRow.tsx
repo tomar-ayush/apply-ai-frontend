@@ -9,14 +9,21 @@ interface StatsRowProps {
 
 export function StatsRow({ stats, isLoading }: StatsRowProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       <StatCard label="Total Applications" value={stats.total} icon={Layers} isLoading={isLoading} />
       <StatCard
-        label="Waiting For Referral"
-        value={stats.waitingForReferral}
+        label="Open Jobs"
+        value={stats.jdParsed}
         icon={Clock}
         isLoading={isLoading}
-        accentClassName="text-amber-400"
+        accentClassName="text-zinc-400"
+      />
+      <StatCard
+        label="Referred"
+        value={stats.referred}
+        icon={CircleCheck}
+        isLoading={isLoading}
+        accentClassName="text-emerald-400"
       />
       <StatCard
         label="Applied"

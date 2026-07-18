@@ -99,7 +99,7 @@ export function JobDetailPage() {
           <div className="space-y-6 lg:col-span-2">
             <div className="rounded-xl border border-border bg-card p-4">
               <p className="mb-3 text-sm font-medium text-foreground">Status</p>
-              <StatusOverrideControl jobId={job.id} status={job.status} />
+              <StatusOverrideControl jobId={job.id} status={job.status} referralReceived={job.referral_received} />
             </div>
 
             <JDSummaryPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />

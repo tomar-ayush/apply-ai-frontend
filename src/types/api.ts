@@ -91,6 +91,7 @@ export interface JobDetailResponse {
   workday_job_id: string | null;
   workday_url: string;
   status: JobStatus;
+  referral_received: boolean;
   optimized_resume_pdf_url: string | null;
   optimized_resume_latex_url: string | null;
   created_at: string;
@@ -105,6 +106,7 @@ export interface JobResponse {
   user_id: string;
   workday_url: string;
   status: JobStatus;
+  referral_received: boolean;
   optimized_resume_pdf_url: string | null;
   optimized_resume_latex_url: string | null;
   created_at: string;

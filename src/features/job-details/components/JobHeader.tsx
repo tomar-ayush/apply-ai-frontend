@@ -97,6 +97,11 @@ export function JobHeader({ job, company, role }: JobHeaderProps) {
           </a>
           <p className="text-xs text-muted-foreground">
             Added {shortDate(job.created_at)} · Updated {shortDate(job.updated_at)}
+            {job.referral_received && (
+              <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[11px] font-medium text-emerald-400">
+                Referral received
+              </span>
+            )}
           </p>
         </div>
       </div>

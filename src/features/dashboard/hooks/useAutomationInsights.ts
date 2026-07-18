@@ -22,33 +22,13 @@ export function useAutomationInsights(jobs: JobDetailResponse[] | undefined): Au
       const label = [job.company, job.role].filter(Boolean).join(" — ") || "This job";
       const hoursSinceUpdate = (Date.now() - new Date(job.updated_at).getTime()) / (60 * 60 * 1000);
 
-      if (job.status === JobStatus.WAITING_FOR_REFERRAL && Date.now() - new Date(job.updated_at).getTime() > DAY_MS) {
+      if (job.status === JobStatus.REFERRAL_NOT_RECEIVED && Date.now() - new Date(job.updated_at).getTime() > DAY_MS) {
         insights.push({
           id: `${job.id}-waiting`,
           tone: "warning",
           jobId: job.id,
-          message: `${label} has been waiting for a referral for over ${Math.floor(hoursSinceUpdate / 24)} day${Math.floor(hoursSinceUpdate / 24) === 1 ? "" : "s"}.`,
+          message: `${label} has been marked referral not received for over ${Math.floor(hoursSinceUpdate / 24)} day${Math.floor(hoursSinceUpdate / 24) === 1 ? "" : "s"}.`,
           actionLabel: "View job",
-        });
-      }
-
-      if (job.status === JobStatus.RESUME_GENERATED) {
-        insights.push({
-          id: `${job.id}-resume`,
-          tone: "success",
-          jobId: job.id,
-          message: `${label} resume has been optimized and is ready to review.`,
-          actionLabel: "Review resume",
-        });
-      }
-
-      if (job.status === JobStatus.READY_TO_APPLY) {
-        insights.push({
-          id: `${job.id}-ready`,
-          tone: "info",
-          jobId: job.id,
-          message: `${label} is ready to apply — automation can run now.`,
-          actionLabel: "Run automation",
         });
       }
     }
