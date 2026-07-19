@@ -44,12 +44,11 @@ function MaskedKeyInput({
 
 interface LLMSettingsSectionProps {
   form: UseFormReturn<SettingsFormValues>;
-  hasLlmApiKey: boolean;
-  /** Provider currently persisted on the server — only this one can have a saved key. */
-  savedProvider: string | null;
+  /** Per-provider "configured" state from the backend's has_*_key presence flags. */
+  hasKeyByProvider: Record<LLMProvider, boolean>;
 }
 
-export function LLMSettingsSection({ form, hasLlmApiKey, savedProvider }: LLMSettingsSectionProps) {
+export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectionProps) {
   const { register, control, watch } = form;
   const selectedProvider = watch("llm_provider");
 
@@ -121,13 +120,18 @@ export function LLMSettingsSection({ form, hasLlmApiKey, savedProvider }: LLMSet
           {PROVIDERS.map((provider) => {
             const fieldName = LLM_PROVIDER_KEY_FIELD[provider];
             const isSelected = selectedProvider === provider;
-            const hasSavedKey = isSelected && savedProvider === provider && hasLlmApiKey;
+            const hasSavedKey = hasKeyByProvider[provider];
             return (
               <Field key={provider}>
                 <FieldLabel htmlFor={fieldName}>
                   {PROVIDER_LABELS[provider]} API key
-                  {isSelected && (
+                  {hasSavedKey && (
                     <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-emerald-400 uppercase">
+                      Configured
+                    </span>
+                  )}
+                  {isSelected && (
+                    <span className="rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-blue-400 uppercase">
                       Active
                     </span>
                   )}

@@ -33,6 +33,10 @@ export interface UserProfile {
 
   llm_provider: string | null;
   has_llm_api_key: boolean;
+  has_openrouter_key: boolean;
+  has_openai_key: boolean;
+  has_gemini_key: boolean;
+  has_claude_key: boolean;
   current_llm_model: string | null;
 
   created_at: string;

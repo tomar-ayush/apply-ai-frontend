@@ -13,6 +13,7 @@ import { WorkdayProfileSection } from "@/features/settings/components/WorkdayPro
 import { LLMSettingsSection } from "@/features/settings/components/LLMSettingsSection";
 import { ResumeManagerSection } from "@/features/settings/components/ResumeManagerSection";
 import { getErrorMessage } from "@/lib/axios-error";
+import { LLMProvider } from "@/types/enums";
 import type { UserProfile } from "@/types/api";
 
 function buildDefaultValues(user: UserProfile): SettingsFormValues {
@@ -134,8 +135,12 @@ export function SettingsPage() {
             <WorkdayProfileSection form={form} />
             <LLMSettingsSection
               form={form}
-              hasLlmApiKey={meQuery.data.has_llm_api_key}
-              savedProvider={meQuery.data.llm_provider}
+              hasKeyByProvider={{
+                [LLMProvider.OPENAI]: meQuery.data.has_openai_key,
+                [LLMProvider.ANTHROPIC]: meQuery.data.has_claude_key,
+                [LLMProvider.GEMINI]: meQuery.data.has_gemini_key,
+                [LLMProvider.OPENROUTER]: meQuery.data.has_openrouter_key,
+              }}
             />
           </form>
         )}
