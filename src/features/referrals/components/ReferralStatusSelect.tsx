@@ -17,11 +17,17 @@ export function ReferralStatusSelect({ jobId, referralId, status, linkedinUrl }:
   const updateReferral = useUpdateReferral(jobId);
   const transitions = VALID_REFERRAL_TRANSITIONS[status] ?? [];
 
-  const handleChange = (next: ReferralStatus) => {
+  const handleChange = (next: ReferralStatus | null | undefined) => {
+    if (next === null || next === undefined) {
+      return;
+    }
+
+    const nextStatus = next;
+
     updateReferral.mutate(
-      { referralId, payload: { status: next, linkedin_url: linkedinUrl ?? undefined } },
+      { referralId, payload: { status: nextStatus, linkedin_url: linkedinUrl ?? undefined } },
       {
-        onSuccess: () => toast.success(`Marked as ${REFERRAL_STATUS_MAP[next].label}`),
+        onSuccess: () => toast.success(`Marked as ${REFERRAL_STATUS_MAP[nextStatus].label}`),
         onError: (error) => toast.error(getErrorMessage(error, "Could not update referral status")),
       }
     );
@@ -32,7 +38,7 @@ export function ReferralStatusSelect({ jobId, referralId, status, linkedinUrl }:
   }
 
   return (
-    <Select value="" onValueChange={(v) => handleChange(v as ReferralStatus)}>
+    <Select value="" onValueChange={(v) => handleChange(v as ReferralStatus | null)}>
       <SelectTrigger size="sm" className="w-fit">
         <SelectValue placeholder={<StatusBadge kind="referral" status={status} />} />
       </SelectTrigger>
