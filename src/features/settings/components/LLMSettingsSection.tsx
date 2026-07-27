@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { Eye, EyeOff, Info } from "lucide-react";
 
@@ -49,8 +49,12 @@ interface LLMSettingsSectionProps {
 }
 
 export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectionProps) {
-  const { register, control, watch } = form;
+  const { register, control, watch, setValue } = form;
   const selectedProvider = watch("llm_provider");
+
+  useEffect(() => {
+    setValue("current_llm_model", "");
+  }, [selectedProvider, setValue]);
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
