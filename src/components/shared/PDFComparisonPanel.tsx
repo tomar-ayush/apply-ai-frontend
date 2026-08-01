@@ -13,10 +13,11 @@ interface PDFViewerProps {
   url: string | null | undefined;
   isLoading?: boolean;
   emptyLabel: string;
+  message?: string | null;
   onExpand?: () => void;
 }
 
-export function PDFViewer({ url, isLoading, emptyLabel, onExpand }: PDFViewerProps) {
+export function PDFViewer({ url, isLoading, emptyLabel, message, onExpand }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [page, setPage] = useState(1);
 
@@ -31,9 +32,10 @@ export function PDFViewer({ url, isLoading, emptyLabel, onExpand }: PDFViewerPro
 
   if (!url) {
     return (
-      <div className="flex h-80 flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
-        <FileX2 className="size-6" />
-        {emptyLabel}
+      <div className="flex h-80 flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground p-4">
+        <FileX2 className="size-6 text-muted-foreground/60" />
+        <span className="font-medium text-foreground">{message || emptyLabel}</span>
+        {message && <span className="text-xs text-muted-foreground">{emptyLabel}</span>}
       </div>
     );
   }
@@ -84,6 +86,8 @@ export function PDFViewer({ url, isLoading, emptyLabel, onExpand }: PDFViewerPro
 interface PDFComparisonPanelProps {
   originalUrl?: string | null;
   optimizedUrl?: string | null;
+  originalMessage?: string | null;
+  optimizedMessage?: string | null;
   isOriginalLoading?: boolean;
   isOptimizedLoading?: boolean;
   onSelectVersion?: (version: ResumeVersion) => void;
@@ -94,15 +98,17 @@ interface PDFComparisonPanelProps {
 export function PDFComparisonPanel({
   originalUrl,
   optimizedUrl,
+  originalMessage,
+  optimizedMessage,
   isOriginalLoading,
   isOptimizedLoading,
   onSelectVersion,
   selectedVersion,
   isSelecting,
 }: PDFComparisonPanelProps) {
-  const panels: { version: ResumeVersion; label: string; url: string | null | undefined; isLoading?: boolean }[] = [
-    { version: "original" as ResumeVersion, label: "Original", url: originalUrl, isLoading: isOriginalLoading },
-    { version: "optimized" as ResumeVersion, label: "Optimized", url: optimizedUrl, isLoading: isOptimizedLoading },
+  const panels: { version: ResumeVersion; label: string; url: string | null | undefined; message?: string | null; isLoading?: boolean }[] = [
+    { version: "original" as ResumeVersion, label: "Original", url: originalUrl, message: originalMessage, isLoading: isOriginalLoading },
+    { version: "optimized" as ResumeVersion, label: "Optimized", url: optimizedUrl, message: optimizedMessage, isLoading: isOptimizedLoading },
   ];
 
   const [expandedUrl, setExpandedUrl] = useState<string | null>(null);
@@ -145,6 +151,7 @@ export function PDFComparisonPanel({
           </div>
           <PDFViewer
             url={panel.url}
+            message={panel.message}
             isLoading={panel.isLoading}
             onExpand={panel.url ? () => setExpandedUrl(panel.url ?? null) : undefined}
             emptyLabel={panel.version === "original" ? "No original resume uploaded yet." : "No optimized resume generated yet."}

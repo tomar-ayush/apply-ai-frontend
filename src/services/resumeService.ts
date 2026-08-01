@@ -37,12 +37,31 @@ export const resumeService = {
     return data;
   },
 
-  /** Step 5: get a presigned GET url for a compiled PDF (original | ai). */
-  async getDownloadUrl(version: ResumeVersion, jobId?: string): Promise<DownloadResumeResponse> {
+  /** Step 5: get a presigned GET url for a compiled PDF (isPdf=true) or LaTeX source (isPdf=false). */
+  async getDownloadUrl(version: ResumeVersion, jobId?: string, isPdf = true): Promise<DownloadResumeResponse> {
     // Backend path segment is "original" or "ai" (not "optimized").
     const pathSegment = version === ResumeVersion.OPTIMIZED ? "ai" : version;
     const idSegment = jobId || "default";
-    const { data } = await apiClient.get<DownloadResumeResponse>(`/resumes/download/${pathSegment}/${idSegment}`);
+    const { data } = await apiClient.get<DownloadResumeResponse>(`/resumes/download/${pathSegment}`, {
+      params: { isPdf, job_id: idSegment },
+    });
+    return data;
+  },
+
+  /** Helper to fetch the raw .tex LaTeX content string for a given version and jobId. */
+  async getLatexSource(version: ResumeVersion, jobId?: string): Promise<string> {
+    const res = await this.getDownloadUrl(version, jobId, false);
+    if (!res.download_url) return "";
+    const response = await fetch(res.download_url, { cache: "no-cache" });
+    if (!response.ok) return "";
+    return response.text();
+  },
+
+  /** Step 6: compile custom LaTeX for a specific job's AI resume and update stored URLs. */
+  async compileJobResume(jobId: string, latex: string): Promise<DownloadResumeResponse> {
+    const { data } = await apiClient.post<DownloadResumeResponse>(`/resumes/compile/${jobId}`, {
+      latex,
+    });
     return data;
   },
 };

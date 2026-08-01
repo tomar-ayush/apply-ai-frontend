@@ -7,16 +7,21 @@ import { PDFComparisonPanel } from "@/components/shared/PDFComparisonPanel";
 import { LatexUploadDialog } from "@/features/job-details/components/LatexUploadDialog";
 import { GenerateResumeDialog } from "@/features/job-details/components/GenerateResumeDialog";
 import { PDFDiffViewer } from "@/features/job-details/components/PDFDiffViewer";
-import { useJobResume, useGenerateResume } from "@/queries/useResumeQueries";
+import { useJobResume, useGenerateResume, useCompileJobResume, useJobResumeLatex } from "@/queries/useResumeQueries";
 import { getErrorMessage } from "@/lib/axios-error";
 import { ResumeVersion, type ResumeSection as ResumeSectionValue } from "@/types/enums";
 
 export function ResumeSection({ jobId }: { jobId: string }) {
   const originalQuery = useJobResume(jobId, ResumeVersion.ORIGINAL);
   const optimizedQuery = useJobResume(jobId, ResumeVersion.OPTIMIZED);
+  const aiLatexQuery = useJobResumeLatex(jobId, ResumeVersion.OPTIMIZED);
+  const origLatexQuery = useJobResumeLatex(jobId, ResumeVersion.ORIGINAL);
   const generateResume = useGenerateResume(jobId);
+  const compileJobResume = useCompileJobResume(jobId);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [generateOpen, setGenerateOpen] = useState(false);
+
+  const latexSource = aiLatexQuery.data || origLatexQuery.data || "";
 
   const handleGenerateConfirm = (sections: ResumeSectionValue[]) => {
     setGenerateOpen(false);
@@ -29,9 +34,21 @@ export function ResumeSection({ jobId }: { jobId: string }) {
     });
   };
 
+  const handleRecompile = (latexText?: string) => {
+    if (!latexText || !latexText.trim()) {
+      toast.error("No LaTeX content to compile");
+      return;
+    }
+    toast.info("Compiling & updating job optimized resume…");
+    compileJobResume.mutate(latexText, {
+      onSuccess: () => toast.success("Optimized resume compiled & updated successfully!"),
+      onError: (error) => toast.error(getErrorMessage(error, "Could not compile optimized resume")),
+    });
+  };
+
   const handleRefetch = () => {
-    Promise.all([originalQuery.refetch(), optimizedQuery.refetch()])
-      .then(() => toast.success("Resume PDFs refetched"))
+    Promise.all([originalQuery.refetch(), optimizedQuery.refetch(), aiLatexQuery.refetch(), origLatexQuery.refetch()])
+      .then(() => toast.success("Resume PDFs and LaTeX refetched"))
       .catch((e) => toast.error(getErrorMessage(e, "Could not refetch resumes")));
   };
 
@@ -60,18 +77,23 @@ export function ResumeSection({ jobId }: { jobId: string }) {
           </Button>
         </div>
       </div>
-      <div className="p-4">
+      <div className="p-4 space-y-6">
         <PDFComparisonPanel
           originalUrl={originalQuery.data?.download_url}
           optimizedUrl={optimizedQuery.data?.download_url}
+          originalMessage={originalQuery.data?.message}
+          optimizedMessage={optimizedQuery.data?.message}
           isOriginalLoading={originalQuery.isLoading}
-          isOptimizedLoading={optimizedQuery.isLoading || generateResume.isPending}
+          isOptimizedLoading={optimizedQuery.isLoading || generateResume.isPending || compileJobResume.isPending}
         />
 
         <PDFDiffViewer
           originalUrl={originalQuery.data?.download_url}
           optimizedUrl={optimizedQuery.data?.download_url}
-          isLoading={optimizedQuery.isLoading || generateResume.isPending}
+          latexSource={latexSource}
+          isLoading={optimizedQuery.isLoading || generateResume.isPending || compileJobResume.isPending}
+          onRecompile={handleRecompile}
+          isRecompiling={generateResume.isPending || compileJobResume.isPending}
         />
       </div>
 

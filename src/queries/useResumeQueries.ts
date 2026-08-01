@@ -69,3 +69,33 @@ export function useRefreshResumeDownload(version: ResumeVersion, jobId?: string)
     },
   });
 }
+
+/** Fetches the raw .tex LaTeX content for a job's resume. */
+export function useJobResumeLatex(jobId: string | undefined, version: ResumeVersion) {
+  return useQuery({
+    queryKey: ["jobs", jobId ?? "", "resume-latex", version],
+    queryFn: () => resumeService.getLatexSource(version, jobId),
+    enabled: !!jobId,
+    retry: false,
+  });
+}
+
+/** Compiles custom LaTeX for a job's AI resume and updates stored PDF URL. */
+export function useCompileJobResume(jobId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (latex: string) => resumeService.compileJobResume(jobId, latex),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
+      queryClient.setQueryData(queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED), null);
+    },
+    onSuccess: (data) => {
+      // Directly update the query cache with the POST response (download_url & message)
+      queryClient.setQueryData(queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED), data);
+      queryClient.invalidateQueries({ queryKey: queryKeys.job(jobId) });
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
+    },
+  });
+}
