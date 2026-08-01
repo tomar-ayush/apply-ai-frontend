@@ -16,6 +16,9 @@ const JobDetailPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import("@/features/settings/pages/SettingsPage").then((m) => ({ default: m.SettingsPage }))
 );
+const InstallWorkerPage = lazy(() =>
+  import("@/features/install-worker/pages/InstallWorkerPage").then((m) => ({ default: m.InstallWorkerPage }))
+);
 
 export function AppRoutes() {
   return (
@@ -40,6 +43,14 @@ export function AppRoutes() {
             element={
               <Suspense fallback={null}>
                 <SettingsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="install-worker"
+            element={
+              <Suspense fallback={null}>
+                <InstallWorkerPage />
               </Suspense>
             }
           />

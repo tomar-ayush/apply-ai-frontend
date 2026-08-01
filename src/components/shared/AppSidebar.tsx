@@ -1,4 +1,4 @@
-import { LayoutGrid, Briefcase, Settings, LogOut } from "lucide-react";
+import { LayoutGrid, Briefcase, Settings, LogOut, Terminal } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { ConnectionIndicatorConnected } from "@/components/shared/ConnectionIndicator";
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: LayoutGrid, end: true },
   { to: "/jobs", label: "Jobs", icon: Briefcase, end: false },
   { to: "/settings", label: "Settings", icon: Settings, end: false },
+  { to: "/install-worker", label: "Install Worker", icon: Terminal, end: false },
 ];
 
 export function AppSidebar() {
