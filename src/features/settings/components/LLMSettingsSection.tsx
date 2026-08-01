@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
-import { Eye, EyeOff, Info } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,23 @@ const PROVIDER_LABELS: Record<string, string> = {
 };
 
 const PROVIDERS = [LLMProvider.OPENAI, LLMProvider.ANTHROPIC, LLMProvider.GEMINI, LLMProvider.OPENROUTER] as const;
+
+function CopyableSpan({ text }: { text: string }) {
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!");
+  };
+
+  return (
+    <span
+      onClick={handleCopy}
+      title="Click to copy"
+      className="inline-flex cursor-pointer items-center gap-1 rounded bg-muted/80 px-1.5 py-0.5 font-mono text-[11px] text-foreground transition-colors hover:bg-muted hover:text-primary active:scale-95"
+    >
+      {text}
+    </span>
+  );
+}
 
 function MaskedKeyInput({
   id,
@@ -107,17 +125,23 @@ export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectio
 
         {selectedProvider === LLMProvider.OPENROUTER && (
           <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
-            OpenRouter requires a model. Use any slug from{" "}
-            <span className="font-mono">openrouter.ai/models</span>
+            OpenRouter requires a model. Use any slug from <CopyableSpan text="openrouter.ai/models" />
+          </p>
+        )}
+        {selectedProvider === LLMProvider.GEMINI && (
+          <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
+            Gemini requires a model. Use any slug from <CopyableSpan text="https://ai.google.dev/gemini-api/docs/pricing" />
           </p>
         )}
 
+        {/* 
         <div className="flex items-start gap-1.5 rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           <span>
             It is always better to provide model for the selected LLM provider.
           </span>
         </div>
+         */}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {PROVIDERS.map((provider) => {
