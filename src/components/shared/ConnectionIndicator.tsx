@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useWorkerHealthSnapshot } from "@/lib/workerHealthStore";
+import { useWorkerHealth, useWorkerUrl } from "@/features/job-details/hooks/useWorkerHealth";
 
 interface ConnectionIndicatorProps {
   workerUrl: string;
@@ -9,13 +9,10 @@ interface ConnectionIndicatorProps {
 }
 
 /**
- * Pure presentational indicator. It does NOT poll — the upstream WorkerStatusCard
- * (on the jobs page) owns the /health polling and pushes the latest snapshot into the
- * shared worker-health store, which ConnectionIndicatorConnected subscribes to.
+ * Presentational indicator for the local Playwright automation agent health.
  */
 export function ConnectionIndicator({ workerUrl, isHealthy, dataUpdatedAt }: ConnectionIndicatorProps) {
-  // Tick once a second so the "Last checked" relative time keeps advancing
-  // instead of freezing until the next cache update.
+  // Tick once a second so the "Last checked" relative time keeps advancing.
   const [, forceTick] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => forceTick((n) => n + 1), 1000);
@@ -66,10 +63,15 @@ export function ConnectionIndicator({ workerUrl, isHealthy, dataUpdatedAt }: Con
   );
 }
 
-/** Connected wrapper: reads the pushed worker-health snapshot and feeds ConnectionIndicator. */
+/** Connected wrapper: queries local agent health directly using TanStack Query. */
 export function ConnectionIndicatorConnected() {
-  const { workerUrl, isHealthy, dataUpdatedAt } = useWorkerHealthSnapshot();
+  const [workerUrl] = useWorkerUrl();
+  const health = useWorkerHealth(workerUrl);
+  const isHealthy = health.data?.status === "ok";
+  const dataUpdatedAt = health.dataUpdatedAt || undefined;
+
   return (
     <ConnectionIndicator workerUrl={workerUrl} isHealthy={isHealthy} dataUpdatedAt={dataUpdatedAt} />
   );
 }
+

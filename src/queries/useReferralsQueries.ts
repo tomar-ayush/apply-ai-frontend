@@ -61,12 +61,9 @@ export function useConnectReferral(jobId: string) {
     mutationFn: ({ referralId, payload }: { referralId: string; payload: ConnectReferralRequest }) =>
       tasksService.connectReferral(referralId, payload),
     onSuccess: () => {
-      const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
-      // The agent processes the connection asynchronously and calls the backend back later,
-      // so poll a couple of times to pick up the eventual status change without a full poller.
-      invalidate();
-      setTimeout(invalidate, 8_000);
-      setTimeout(invalidate, 20_000);
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.job(jobId) });
     },
   });
 }
+

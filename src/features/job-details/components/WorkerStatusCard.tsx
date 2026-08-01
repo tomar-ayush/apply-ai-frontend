@@ -6,23 +6,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { relativeTime } from "@/lib/format";
 import { useWorkerHealth, useWorkerUrl } from "@/features/job-details/hooks/useWorkerHealth";
-import { publishWorkerHealth } from "@/lib/workerHealthStore";
 
 export function WorkerStatusCard() {
   const [workerUrl, setWorkerUrl] = useWorkerUrl();
   const [draft, setDraft] = useState(workerUrl);
   const health = useWorkerHealth(workerUrl);
   const isHealthy = health.data?.status === "ok";
-
-  // Push the latest worker health into the shared store so the sidebar
-  // ConnectionIndicator (rendered outside this page) mirrors it without polling.
-  useEffect(() => {
-    publishWorkerHealth({
-      workerUrl,
-      isHealthy: !!workerUrl && health.data?.status === "ok",
-      dataUpdatedAt: health.dataUpdatedAt || undefined,
-    });
-  }, [workerUrl, health.data?.status, health.dataUpdatedAt]);
 
   // Tick once a second so the "Last checked" relative time keeps advancing
   // instead of freezing at "0 seconds ago" until the next refetch.
@@ -31,6 +20,7 @@ export function WorkerStatusCard() {
     const id = setInterval(() => setTick((t) => t + 1), 1_000);
     return () => clearInterval(id);
   }, []);
+
 
   const handleSave = () => {
     setWorkerUrl(draft);

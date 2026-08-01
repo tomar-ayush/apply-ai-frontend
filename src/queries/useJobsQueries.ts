@@ -2,13 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { jobsService } from "@/services/jobsService";
 import { queryKeys } from "@/queries/queryKeys";
 import type { JobStatus } from "@/types/enums";
-import type { JobDetailResponse } from "@/types/api";
+import type { JobListResponse, JobDetailResponse } from "@/types/api";
 
 export function useJobsList(status?: JobStatus) {
   return useQuery({
     queryKey: queryKeys.jobs(status),
     queryFn: () => jobsService.list(status),
-    refetchInterval: 15_000,
     select: (data) => data.items,
   });
 }
@@ -22,21 +21,21 @@ export function useJob(id: string | undefined) {
 }
 
 /**
- * Reads the full job detail (including company/role/workday_job_id) from the jobs
- * list. GET /jobs/{id} omits those fields, so the detail page sources them from
- * the list (JobDetailResponse), which denormalizes them — even for NEW jobs.
+ * Reads the full job detail (including company/role/workday_job_id) from the cached
+ * jobs list without spawning a duplicate list observer or extra network requests.
  */
-export function useJobFromList(id: string | undefined) {
-  // Fetch the list on demand (no refetchInterval) so the detail page always has
-  // company/role, even on direct navigation. This does NOT inherit the jobs page's
-  // 15s polling because that interval lives on the useJobsList observer, not here.
-  const list = useQuery({
-    queryKey: queryKeys.jobs(),
-    queryFn: () => jobsService.list(),
-    enabled: !!id,
-  });
-  const match = list.data?.items?.find((job: JobDetailResponse) => job.id === id);
-  return match;
+export function useJobFromList(id: string | undefined): JobDetailResponse | undefined {
+  const queryClient = useQueryClient();
+  if (!id) return undefined;
+
+  const queries = queryClient.getQueriesData<JobListResponse>({ queryKey: ["jobs"] });
+  for (const [, data] of queries) {
+    if (data?.items) {
+      const match = data.items.find((job) => job.id === id);
+      if (match) return match;
+    }
+  }
+  return undefined;
 }
 
 export function useCreateJob() {
@@ -44,8 +43,11 @@ export function useCreateJob() {
   return useMutation({
     mutationFn: ({ workdayUrl, ai }: { workdayUrl: string; ai: boolean }) =>
       jobsService.create(workdayUrl, ai),
-    onSuccess: () => {
+    onSuccess: (newJob) => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      if (newJob?.id) {
+        queryClient.setQueryData(queryKeys.job(newJob.id), newJob);
+      }
     },
   });
 }
@@ -83,3 +85,4 @@ export function useUpdateJobStatus(jobId: string) {
     },
   });
 }
+
