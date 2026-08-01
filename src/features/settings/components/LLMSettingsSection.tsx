@@ -115,8 +115,7 @@ export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectio
         <div className="flex items-start gap-1.5 rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           <span>
-            You can fill in keys for multiple providers below, but only the key for the active provider above is
-            saved and used by automation — the backend stores one active key at a time.
+            It is always better to provide model for the selected LLM provider.
           </span>
         </div>
 
