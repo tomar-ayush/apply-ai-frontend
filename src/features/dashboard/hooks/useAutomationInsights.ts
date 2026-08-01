@@ -12,7 +12,7 @@ export interface AutomationInsight {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Derived, computed live from the current jobs list — there is no dedicated insights/notifications endpoint. */
+/** Derived, computed live from the current jobs list — flags jobs in JD_PARSED state for >24 hours. */
 export function useAutomationInsights(jobs: JobDetailResponse[] | undefined): AutomationInsight[] {
   return useMemo(() => {
     const list = jobs ?? [];
@@ -20,19 +20,25 @@ export function useAutomationInsights(jobs: JobDetailResponse[] | undefined): Au
 
     for (const job of list) {
       const label = [job.company, job.role].filter(Boolean).join(" — ") || "This job";
-      const hoursSinceUpdate = (Date.now() - new Date(job.updated_at).getTime()) / (60 * 60 * 1000);
+      const lastUpdatedMs = new Date(job.updated_at || job.created_at).getTime();
+      const diffMs = Date.now() - lastUpdatedMs;
 
-      if (job.status === JobStatus.REFERRAL_NOT_RECEIVED && Date.now() - new Date(job.updated_at).getTime() > DAY_MS) {
+      // Filter jobs in JD_PARSED status that were updated over 24 hours ago
+      if (job.status === JobStatus.JD_PARSED && diffMs >= DAY_MS) {
+        const hoursAgo = Math.floor(diffMs / (60 * 60 * 1000));
+        const daysAgo = Math.floor(hoursAgo / 24);
+        const durationStr = daysAgo >= 1 ? `${daysAgo} day${daysAgo === 1 ? "" : "s"}` : `${hoursAgo} hours`;
+
         insights.push({
-          id: `${job.id}-waiting`,
+          id: `${job.id}-jd-parsed-stale`,
           tone: "warning",
           jobId: job.id,
-          message: `${label} has been marked referral not received for over ${Math.floor(hoursSinceUpdate / 24)} day${Math.floor(hoursSinceUpdate / 24) === 1 ? "" : "s"}.`,
-          actionLabel: "View job",
+          message: `${label} has been in JD_PARSED state for over ${durationStr}. Action required to progress.`,
+          actionLabel: "Take action",
         });
       }
     }
 
-    return insights.sort((a, b) => (a.tone === "warning" ? -1 : b.tone === "warning" ? 1 : 0));
+    return insights;
   }, [jobs]);
 }
