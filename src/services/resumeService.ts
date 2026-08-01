@@ -38,10 +38,11 @@ export const resumeService = {
   },
 
   /** Step 5: get a presigned GET url for a compiled PDF (original | ai). */
-  async getDownloadUrl(version: ResumeVersion): Promise<DownloadResumeResponse> {
+  async getDownloadUrl(version: ResumeVersion, jobId?: string): Promise<DownloadResumeResponse> {
     // Backend path segment is "original" or "ai" (not "optimized").
     const pathSegment = version === ResumeVersion.OPTIMIZED ? "ai" : version;
-    const { data } = await apiClient.get<DownloadResumeResponse>(`/resumes/download/${pathSegment}`);
+    const idSegment = jobId || "default";
+    const { data } = await apiClient.get<DownloadResumeResponse>(`/resumes/download/${pathSegment}/${idSegment}`);
     return data;
   },
 };

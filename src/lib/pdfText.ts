@@ -16,7 +16,7 @@ export interface PdfTextDocument {
  * (mirrors the reference pdf-diff implementation).
  */
 export async function extractTextFromPdfUrl(url: string): Promise<PdfTextDocument> {
-    const res = await fetch(url);
+    const res = await fetch(url, { cache: "no-cache" });
     if (!res.ok) throw new Error("Could not fetch PDF");
     const buffer = await res.arrayBuffer();
     const pdf = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;

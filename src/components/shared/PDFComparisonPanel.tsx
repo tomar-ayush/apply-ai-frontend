@@ -22,8 +22,9 @@ export function PDFViewer({ url, isLoading, emptyLabel, onExpand }: PDFViewerPro
 
   if (isLoading) {
     return (
-      <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
-        <Loader2 className="size-4 animate-spin" />
+      <div className="flex h-80 flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="size-5 animate-spin text-primary" />
+        <span>Optimizing resume…</span>
       </div>
     );
   }

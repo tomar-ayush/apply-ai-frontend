@@ -169,8 +169,15 @@ export function PDFDiffViewer({ originalUrl, optimizedUrl, isLoading }: PDFDiffV
           <DiffView parts={current.parts} mode={mode} originalText={current.originalText} modifiedText={current.modifiedText} />
         </div>
       ) : (
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          {showLoading ? <Loader2 className="size-4 animate-spin" /> : "No diff"}
+        <div className="flex h-40 flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+          {showLoading ? (
+            <>
+              <Loader2 className="size-5 animate-spin text-primary" />
+              <span>{isLoading ? "Generating optimized resume & computing diff…" : "Computing diff…"}</span>
+            </>
+          ) : (
+            "No diff available for comparison"
+          )}
         </div>
       )}
 

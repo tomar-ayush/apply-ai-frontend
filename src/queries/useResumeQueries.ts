@@ -13,7 +13,7 @@ export function useJobResume(jobId: string | undefined, version: ResumeVersion) 
       : queryKeys.jobResume(jobId ?? "", version);
   return useQuery({
     queryKey,
-    queryFn: () => resumeService.getDownloadUrl(version),
+    queryFn: () => resumeService.getDownloadUrl(version, jobId),
     enabled: !!jobId,
     retry: false,
   });
@@ -38,21 +38,34 @@ export function useGenerateResume(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (sections: string[]) => resumeService.generate(jobId, sections),
+    onMutate: async () => {
+      // Cancel any outgoing refetches for this job's optimized resume so they don't overwrite our null state
+      await queryClient.cancelQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
+      // Immediately clear cached optimized resume for this job so previous diff is invalidated
+      queryClient.setQueryData(queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED), null);
+    },
     onSuccess: () => {
-      // The AI resume is job-specific — invalidate only this job's ai copy.
+      // Fetch the new optimized resume copy now that generation has finished
       queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
       queryClient.invalidateQueries({ queryKey: queryKeys.job(jobId) });
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
     },
   });
 }
 
 /** Fetches a fresh presigned GET url for a compiled PDF and reloads it from R2. */
-export function useRefreshResumeDownload(version: ResumeVersion) {
+export function useRefreshResumeDownload(version: ResumeVersion, jobId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => resumeService.getDownloadUrl(version),
+    mutationFn: () => resumeService.getDownloadUrl(version, jobId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumeVersion(version) });
+      if (jobId && version === ResumeVersion.OPTIMIZED) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, version) });
+      } else {
+        queryClient.invalidateQueries({ queryKey: queryKeys.resumeVersion(version) });
+      }
     },
   });
 }

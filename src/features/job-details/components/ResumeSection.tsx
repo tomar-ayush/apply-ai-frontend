@@ -19,10 +19,11 @@ export function ResumeSection({ jobId }: { jobId: string }) {
   const [generateOpen, setGenerateOpen] = useState(false);
 
   const handleGenerateConfirm = (sections: ResumeSectionValue[]) => {
+    setGenerateOpen(false);
+    toast.info("Generating optimized resume in background…");
     generateResume.mutate(sections, {
       onSuccess: () => {
         toast.success("Optimized resume generated");
-        setGenerateOpen(false);
       },
       onError: (error) => toast.error(getErrorMessage(error, "Could not generate an optimized resume")),
     });
