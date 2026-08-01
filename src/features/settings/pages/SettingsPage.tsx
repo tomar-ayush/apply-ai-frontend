@@ -132,7 +132,7 @@ export function SettingsPage() {
           <form onSubmit={onSubmit} className="space-y-6">
             <ProfileSection form={form} email={meQuery.data.email} />
             <ResumeManagerSection />
-            <WorkdayProfileSection form={form} />
+            {/* <WorkdayProfileSection form={form} /> */}
             <LLMSettingsSection
               form={form}
               hasKeyByProvider={{

@@ -77,7 +77,7 @@ export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectio
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <SectionHeading
-        index="04"
+        index="03"
         title="AI / LLM Settings"
         description="Configure API credentials securely. Keys are encrypted and hidden after saving."
       />
