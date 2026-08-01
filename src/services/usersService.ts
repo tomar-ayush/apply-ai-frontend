@@ -10,4 +10,8 @@ export const usersService = {
     const { data } = await apiClient.patch<UserProfile>("/users/me", payload);
     return data;
   },
+  async updateLinkedinMessage(linkedin_message: string): Promise<UserProfile> {
+    const { data } = await apiClient.patch<UserProfile>("/users/me/linkedin-message", { linkedin_message });
+    return data;
+  },
 };

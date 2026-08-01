@@ -30,3 +30,13 @@ export function useUpdateProfile() {
     },
   });
 }
+
+export function useUpdateLinkedinMessage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (linkedin_message: string) => usersService.updateLinkedinMessage(linkedin_message),
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKeys.me, data);
+    },
+  });
+}

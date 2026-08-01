@@ -38,9 +38,14 @@ export interface UserProfile {
   has_gemini_key: boolean;
   has_claude_key: boolean;
   current_llm_model: string | null;
+  linkedin_message: string | null;
 
   created_at: string;
   updated_at: string;
+}
+
+export interface UpdateLinkedinMessageRequest {
+  linkedin_message: string;
 }
 
 export interface UpdateUserRequest {
