@@ -31,8 +31,8 @@ export function AskForReferralButton({ jobId, referralId, name, linkedinUrl, com
 
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState(
-    // `Hi ${name}, I'm exploring opportunities and would love to connect!`
-    `Hi ${name}\n\nI came across the Software Engineer role at ${company ?? ""}. I'm a CS grad and currently interning at Morgan Stanley with 1yr of backend experience\nI'd appreciate a referral if you feel my profile fits this role well\n\nid: 2026-14043\nlink:https://tinyurl.com/5jm6c9xh\nCV: https://tinyurl.com/2jawcfcb`
+    `Hi ${name}, I'm exploring opportunities and would love to connect!`
+    // `Hi ${name}\n\nI came across the Software Engineer role at ${company ?? ""}. I'm a CS grad and currently interning at Morgan Stanley with 1yr of backend experience\nI'd appreciate a referral if you feel my profile fits this role well\n\nid: 2026-14043\nlink:https://tinyurl.com/5jm6c9xh\nCV: https://tinyurl.com/2jawcfcb`
   );
 
   const disabledReason = !workerUrl
