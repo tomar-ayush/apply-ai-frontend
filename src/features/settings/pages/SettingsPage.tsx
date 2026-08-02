@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useMe, useUpdateProfile } from "@/queries/useUsersQueries";
 import { LLM_PROVIDER_KEY_FIELD, settingsFormSchema, type SettingsFormValues } from "@/features/settings/schemas";
 import { ProfileSection } from "@/features/settings/components/ProfileSection";
-import { WorkdayProfileSection } from "@/features/settings/components/WorkdayProfileSection";
+// import { WorkdayProfileSection } from "@/features/settings/components/WorkdayProfileSection";
 import { LLMSettingsSection } from "@/features/settings/components/LLMSettingsSection";
 import { ResumeManagerSection } from "@/features/settings/components/ResumeManagerSection";
 import { getErrorMessage } from "@/lib/axios-error";
