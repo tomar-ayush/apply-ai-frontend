@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -9,6 +9,13 @@ import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LLMProvider } from "@/types/enums";
 import { LLM_PROVIDER_KEY_FIELD, type SettingsFormValues } from "@/features/settings/schemas";
+
+const DEFAULT_MODELS: Record<LLMProvider, string> = {
+  [LLMProvider.OPENAI]: "gpt-4o",
+  [LLMProvider.ANTHROPIC]: "claude-3-5-sonnet-latest",
+  [LLMProvider.GEMINI]: "gemini-flash-3.6",
+  [LLMProvider.OPENROUTER]: "openrouter/free",
+};
 
 const PROVIDER_LABELS: Record<string, string> = {
   [LLMProvider.ANTHROPIC]: "Anthropic Claude",
@@ -70,10 +77,6 @@ export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectio
   const { register, control, watch, setValue } = form;
   const selectedProvider = watch("llm_provider");
 
-  useEffect(() => {
-    setValue("current_llm_model", "");
-  }, [selectedProvider, setValue]);
-
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <SectionHeading
@@ -91,7 +94,16 @@ export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectio
                 control={control}
                 name="llm_provider"
                 render={({ field }) => (
-                  <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v || undefined)}>
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(v) => {
+                      const newProvider = v || undefined;
+                      if (newProvider !== field.value) {
+                        field.onChange(newProvider);
+                        setValue("current_llm_model", "");
+                      }
+                    }}
+                  >
                     <SelectTrigger id="llm_provider" className="w-full">
                       <SelectValue placeholder="Select a provider" />
                     </SelectTrigger>
@@ -110,13 +122,16 @@ export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectio
 
           <Field className="sm:w-56">
             <FieldLabel htmlFor="current_llm_model">
-              Model
-              {selectedProvider === LLMProvider.OPENROUTER && <span className="ml-1 text-rose-400">*</span>}
+              Model <span className="text-xs font-normal text-muted-foreground">(Optional)</span>
             </FieldLabel>
             <FieldContent>
               <Input
                 id="current_llm_model"
-                placeholder={selectedProvider === LLMProvider.OPENROUTER ? "Required" : "Optional"}
+                placeholder={
+                  selectedProvider
+                    ? `Optional (default: ${DEFAULT_MODELS[selectedProvider]})`
+                    : "Optional"
+                }
                 {...register("current_llm_model")}
               />
             </FieldContent>
@@ -125,12 +140,22 @@ export function LLMSettingsSection({ form, hasKeyByProvider }: LLMSettingsSectio
 
         {selectedProvider === LLMProvider.OPENROUTER && (
           <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
-            OpenRouter requires a model. Use any slug from <CopyableSpan text="openrouter.ai/models" />
+            Default model is <CopyableSpan text="openrouter/free" /> if left blank. Or use any slug from <CopyableSpan text="https://openrouter.ai/models?q=free" />
           </p>
         )}
         {selectedProvider === LLMProvider.GEMINI && (
           <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
-            Gemini requires a model. Use any slug from <CopyableSpan text="https://ai.google.dev/gemini-api/docs/pricing" />
+            Default model is <CopyableSpan text="gemini-flash-3.6" /> if left blank. Or check slugs from <CopyableSpan text="https://ai.google.dev/gemini-api/docs/pricing" />
+          </p>
+        )}
+        {selectedProvider === LLMProvider.ANTHROPIC && (
+          <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
+            Default model is <CopyableSpan text="claude-3-5-sonnet-latest" /> if left blank.
+          </p>
+        )}
+        {selectedProvider === LLMProvider.OPENAI && (
+          <p className="-mt-2 text-xs text-muted-foreground sm:pl-[17rem]">
+            Default model is <CopyableSpan text="gpt-4o" /> if left blank.
           </p>
         )}
 

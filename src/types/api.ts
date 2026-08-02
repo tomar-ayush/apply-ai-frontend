@@ -28,9 +28,6 @@ export interface UserProfile {
   skills: Record<string, unknown> | null;
   education: Record<string, unknown> | null;
 
-  original_resume_pdf_url: string | null;
-  original_resume_latex_url: string | null;
-
   llm_provider: string | null;
   has_llm_api_key: boolean;
   has_openrouter_key: boolean;
@@ -39,9 +36,6 @@ export interface UserProfile {
   has_claude_key: boolean;
   current_llm_model: string | null;
   linkedin_message: string | null;
-
-  created_at: string;
-  updated_at: string;
 }
 
 export interface UpdateLinkedinMessageRequest {

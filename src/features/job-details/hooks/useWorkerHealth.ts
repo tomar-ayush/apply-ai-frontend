@@ -40,7 +40,7 @@ export function useWorkerUrl() {
 }
 
 /** Polls the agent's own /health endpoint directly (not via our backend — it runs on the user's machine). */
-export function useWorkerHealth(workerUrl: string) {
+export function useWorkerHealth(workerUrl: string, enabled = true) {
   return useQuery({
     queryKey: ["worker-health", workerUrl],
     queryFn: async (): Promise<WorkerHealthResponse> => {
@@ -48,7 +48,7 @@ export function useWorkerHealth(workerUrl: string) {
       if (!res.ok) throw new Error("Worker agent is unhealthy");
       return res.json();
     },
-    enabled: !!workerUrl,
+    enabled: !!workerUrl && enabled,
     refetchInterval: 10_000,
     retry: false,
   });

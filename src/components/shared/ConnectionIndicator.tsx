@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, matchPath } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useWorkerHealth, useWorkerUrl } from "@/features/job-details/hooks/useWorkerHealth";
 
@@ -66,7 +67,12 @@ export function ConnectionIndicator({ workerUrl, isHealthy, dataUpdatedAt }: Con
 /** Connected wrapper: queries local agent health directly using TanStack Query. */
 export function ConnectionIndicatorConnected() {
   const [workerUrl] = useWorkerUrl();
-  const health = useWorkerHealth(workerUrl);
+  const location = useLocation();
+  // Enable worker health polling ONLY when the user is inside a job detail page (/jobs/:id) or worker setup page (/install-worker)
+  const isWorkerPage =
+    matchPath("/jobs/:id", location.pathname) !== null || location.pathname === "/install-worker";
+
+  const health = useWorkerHealth(workerUrl, isWorkerPage);
   const isHealthy = health.data?.status === "ok";
   const dataUpdatedAt = health.dataUpdatedAt || undefined;
 

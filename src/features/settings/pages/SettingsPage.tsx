@@ -47,6 +47,63 @@ function buildDefaultValues(user: UserProfile): SettingsFormValues {
   };
 }
 
+function buildDirtyPayload(values: SettingsFormValues, dirtyFields: Partial<Record<keyof SettingsFormValues, unknown>>): Record<string, unknown> {
+  const payload: Record<string, unknown> = {};
+
+  const simpleFields: Array<keyof SettingsFormValues> = [
+    "full_name",
+    "first_name",
+    "middle_name",
+    "last_name",
+    "phone",
+    "country",
+    "city",
+    "state",
+    "address",
+    "postal_code",
+    "current_company",
+    "current_title",
+  ];
+
+  for (const field of simpleFields) {
+    if (dirtyFields[field]) {
+      const val = (values[field] as string)?.trim();
+      payload[field] = val || undefined;
+    }
+  }
+
+  if (dirtyFields.years_of_experience) {
+    payload.years_of_experience =
+      values.years_of_experience === ("" as unknown) || values.years_of_experience === undefined
+        ? undefined
+        : Number(values.years_of_experience);
+  }
+
+  if (dirtyFields.skills) {
+    payload.skills = { list: values.skills ?? [] };
+  }
+
+  if (dirtyFields.education) {
+    payload.education = { entries: values.education ?? [] };
+  }
+
+  if (dirtyFields.llm_provider && values.llm_provider) {
+    payload.llm_provider = values.llm_provider;
+    // When llm_provider changes, always include current_llm_model (or null if blank) so old provider model is cleared
+    payload.current_llm_model = values.current_llm_model?.trim() ? values.current_llm_model.trim() : null;
+  } else if (dirtyFields.current_llm_model) {
+    payload.current_llm_model = values.current_llm_model?.trim() ? values.current_llm_model.trim() : null;
+  }
+
+  const activeKeyField = values.llm_provider ? LLM_PROVIDER_KEY_FIELD[values.llm_provider] : undefined;
+  if (activeKeyField && dirtyFields[activeKeyField]) {
+    const activeKey = values[activeKeyField];
+    if (activeKey) payload.llm_api_key = activeKey;
+  }
+
+  return payload;
+}
+
 export function SettingsPage() {
   const meQuery = useMe();
   const updateProfile = useUpdateProfile();
@@ -69,35 +126,14 @@ export function SettingsPage() {
   }, [meQuery.data]);
 
   const onSubmit = form.handleSubmit((values) => {
-    const payload: Record<string, unknown> = {
-      full_name: values.full_name,
-      phone: values.phone || undefined,
-      first_name: values.first_name || undefined,
-      middle_name: values.middle_name || undefined,
-      last_name: values.last_name || undefined,
-      address: values.address || undefined,
-      country: values.country || undefined,
-      city: values.city || undefined,
-      state: values.state || undefined,
-      postal_code: values.postal_code || undefined,
-      current_company: values.current_company || undefined,
-      current_title: values.current_title || undefined,
-      years_of_experience:
-        values.years_of_experience === ("" as unknown) || values.years_of_experience === undefined
-          ? undefined
-          : Number(values.years_of_experience),
-      skills: { list: values.skills },
-      education: { entries: values.education },
-      llm_provider: values.llm_provider || undefined,
-    };
+    if (!meQuery.data) return;
+    const dirtyFields = form.formState.dirtyFields;
+    const payload = buildDirtyPayload(values, dirtyFields);
 
-    // The backend only stores one active provider + key pair, so only the key field
-    // matching the currently selected active provider is sent.
-    const activeKeyField = values.llm_provider ? LLM_PROVIDER_KEY_FIELD[values.llm_provider] : undefined;
-    const activeKey = activeKeyField ? values[activeKeyField] : undefined;
-    if (activeKey) payload.llm_api_key = activeKey;
-    // Explicitly send null when no model is provided so the backend clears any prior value.
-    payload.current_llm_model = values.current_llm_model?.trim() ? values.current_llm_model.trim() : null;
+    if (Object.keys(payload).length === 0) {
+      toast.info("No changes to save");
+      return;
+    }
 
     updateProfile.mutate(payload, {
       onSuccess: () => {
