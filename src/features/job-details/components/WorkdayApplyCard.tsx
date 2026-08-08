@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import { Play, RefreshCw, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useWorkerHealth, useWorkerUrl } from "@/features/job-details/hooks/useWorkerHealth";
 import { useTriggerWorkday, useTaskStatus } from "@/queries/useTasksQueries";
 import { JobStatus, TaskStatus } from "@/types/enums";
 import type { JobResponse } from "@/types/api";
@@ -16,30 +15,22 @@ const TASK_STATUS_LABEL: Record<TaskStatus, string> = {
 };
 
 export function WorkdayApplyCard({ job }: { job: JobResponse }) {
-  const [workerUrl] = useWorkerUrl();
-  const health = useWorkerHealth(workerUrl);
-  const isWorkerHealthy = health.data?.status === "ok";
-
   const [taskId, setTaskId] = useState<string | undefined>(undefined);
   const triggerWorkday = useTriggerWorkday(job.id);
   const taskStatus = useTaskStatus(taskId);
 
   const isReady =
     job.status === JobStatus.REFERRAL_RECEIVED || job.status === JobStatus.REFERRAL_NOT_RECEIVED;
-  const canRun = isReady && !!workerUrl && isWorkerHealthy && !triggerWorkday.isPending;
+  const canRun = isReady && !triggerWorkday.isPending;
 
-  const disabledReason = !workerUrl
-    ? "Configure the automation worker URL above first."
-    : !isWorkerHealthy
-      ? "The automation worker must be healthy before running automation."
-      : !isReady
-        ? "Job must have a referral outcome (received or not received) before automation can run."
-        : undefined;
+  const disabledReason = !isReady
+    ? "Job must have a referral outcome (received or not received) before automation can run."
+    : undefined;
 
   const handleRun = () => {
     const resumeUrl = job.optimized_resume_pdf_url ?? job.optimized_resume_latex_url ?? "";
     triggerWorkday.mutate(
-      { job_id: job.id, job_url: job.workday_url, resume_url: resumeUrl, worker_url: workerUrl },
+      { job_id: job.id, job_url: job.workday_url, resume_url: resumeUrl },
       {
         onSuccess: (data) => {
           setTaskId(data.task_id);

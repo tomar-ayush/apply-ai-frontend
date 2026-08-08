@@ -11,10 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useWorkerHealth, useWorkerUrl } from "@/features/job-details/hooks/useWorkerHealth";
-import { useConnectReferral } from "@/queries/useReferralsQueries";
+import { useCompleteReferral, useConnectReferral } from "@/queries/useReferralsQueries";
 import { useMe, useUpdateLinkedinMessage } from "@/queries/useUsersQueries";
 import { getErrorMessage } from "@/lib/axios-error";
+import { dispatchTaskToExtension } from "@/lib/extension";
 
 interface AskForReferralButtonProps {
   jobId: string;
@@ -37,10 +37,8 @@ export function stripGreetingPrefix(text: string, name?: string): string {
 }
 
 export function AskForReferralButton({ jobId, referralId, name, linkedinUrl, company: _company }: AskForReferralButtonProps) {
-  const [workerUrl] = useWorkerUrl();
-  const health = useWorkerHealth(workerUrl);
-  const isWorkerHealthy = health.data?.status === "ok";
   const connectReferral = useConnectReferral(jobId);
+  const completeReferral = useCompleteReferral(jobId);
   const meQuery = useMe();
   const updateLinkedinMessage = useUpdateLinkedinMessage();
 
@@ -54,26 +52,79 @@ export function AskForReferralButton({ jobId, referralId, name, linkedinUrl, com
         const body = stripGreetingPrefix(meQuery.data.linkedin_message, name);
         setMessage(`Hi ${name}, ${body}`);
       } else {
-        setMessage(`Hi ${name}, I'm exploring opportunities and would love to connect!`);
       }
     }
   }, [open, hasUserEdited, meQuery.data?.linkedin_message, name]);
 
-  const disabledReason = !workerUrl
-    ? "Configure the automation worker URL first."
-    : !isWorkerHealthy
-      ? "The automation worker must be healthy first."
-      : undefined;
+  const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "APPLYAI_TASK_RESPONSE" && event.data?.originalType === "APPLYAI_LINKEDIN_TASK") {
+        // Strict check to prevent updating all referrals on the page at once
+        const targetReferralId = event.data.referral_id;
+        if (!targetReferralId || targetReferralId !== referralId) {
+          return;
+        }
+
+        console.log("[DEBUG] Frontend received task response from extension:", event.data);
+        const state = event.data.state || (event.data.success ? "completed" : "failed");
+
+        if (event.data.success) {
+          toast.success("LinkedIn connection request completed!");
+        } else if (event.data.error) {
+          toast.error(`Extension notice: ${event.data.error}`);
+        }
+
+        setIsSending(false);
+
+        // Inform backend of extension task status update
+        completeReferral.mutate({
+          referralId: targetReferralId,
+          payload: {
+            state,
+            task_id: event.data.task_id || null,
+            error: event.data.error || null,
+          },
+        });
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [referralId, completeReferral]);
 
   const handleSend = () => {
+    const taskId = crypto.randomUUID();
+    setIsSending(true);
+    setOpen(false);
+
+    const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || window.location.origin;
+    const callback_url = `${baseUrl}/tasks/referrals/${referralId}/complete`.replace(/([^:]\/)\/+/g, "$1");
+
+    // 1. Dispatch task to Chrome Extension IMMEDIATELY for snappy UI automation
+    dispatchTaskToExtension({
+      referral_id: referralId,
+      linkedin_url: linkedinUrl,
+      message,
+      referral_name: name,
+      task_id: taskId,
+      callback_url,
+    });
+    toast.success("Connection request dispatched to Chrome Extension!");
+
+    // Failsafe timeout to clear the loading state if extension never responds
+    setTimeout(() => setIsSending(false), 120000);
+
+    // 2. Inform backend to create the task in parallel
     connectReferral.mutate(
-      { referralId, payload: { linkedin_url: linkedinUrl, message, agent_url: workerUrl } },
       {
-        onSuccess: () => {
-          toast.success("Connection request queued with the automation worker");
-          setOpen(false);
+        referralId,
+        payload: { linkedin_url: linkedinUrl, message, task_id: taskId },
+      },
+      {
+        onError: (error) => {
+          toast.error(getErrorMessage(error, "Warning: Could not sync referral task to backend"));
         },
-        onError: (error) => toast.error(getErrorMessage(error, "Could not queue the connection request")),
       }
     );
   };
@@ -96,15 +147,14 @@ export function AskForReferralButton({ jobId, referralId, name, linkedinUrl, com
       <Button
         size="xs"
         variant="outline"
-        disabled={!!disabledReason}
-        title={disabledReason}
+        disabled={isSending || connectReferral.isPending}
         onClick={() => {
           setHasUserEdited(false);
           setOpen(true);
         }}
       >
         <Send className="size-3" />
-        Ask for referral
+        {isSending ? "Sending…" : "Ask for referral"}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

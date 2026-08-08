@@ -171,12 +171,25 @@ export interface UpdateReferralRequest {
 export interface ConnectReferralRequest {
   linkedin_url: string;
   message: string;
-  agent_url: string;
+  task_id?: string;
 }
 
 export interface ConnectReferralResponse {
   queued: boolean;
   referral_id: string;
+  task_id?: string;
+  task_payload?: Record<string, unknown> | null;
+}
+
+export interface CompleteLinkedinRequest {
+  state: string;
+  task_id?: string | null;
+  error?: string | null;
+}
+
+export interface CompleteLinkedinResponse {
+  success: boolean;
+  state: string;
 }
 
 export interface GenerateReferralsResponse {
@@ -192,7 +205,7 @@ export interface TriggerWorkdayRequest {
   job_id: string;
   job_url: string;
   resume_url: string;
-  worker_url: string;
+  worker_url?: string;
 }
 
 export interface TriggerWorkdayResponse {

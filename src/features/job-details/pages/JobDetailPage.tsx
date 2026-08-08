@@ -15,7 +15,7 @@ import { JDSummaryPanel } from "@/features/job-details/components/JDSummaryPanel
 import { JDQuestionsPanel } from "@/features/job-details/components/JDQuestionsPanel";
 import { ReferralTable } from "@/features/job-details/components/ReferralTable";
 import { ResumeSection } from "@/features/job-details/components/ResumeSection";
-import { WorkerStatusCard } from "@/features/job-details/components/WorkerStatusCard";
+import { ExtensionStatusCard } from "@/features/job-details/components/ExtensionStatusCard";
 import { WorkdayApplyCard } from "@/features/job-details/components/WorkdayApplyCard";
 import { useJob, useJobFromList } from "@/queries/useJobsQueries";
 import { JobStatus } from "@/types/enums";
@@ -103,13 +103,13 @@ export function JobDetailPage() {
             </div>
 
             <JDSummaryPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
-            <JDQuestionsPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
+            {/* <JDQuestionsPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} /> */}
           </div>
 
           <div className="space-y-6">
             <JobTimeline job={job} />
-            <WorkerStatusCard />
-            <WorkdayApplyCard job={job} />
+            <ExtensionStatusCard />
+            {/* <WorkdayApplyCard job={job} /> */}
           </div>
         </div>
         <div className="flex flex-col gap-6">
@@ -119,6 +119,7 @@ export function JobDetailPage() {
             )}
           <ResumeSection jobId={job.id} />
         </div>
+                    <JDQuestionsPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
       </div>
 
     </div>

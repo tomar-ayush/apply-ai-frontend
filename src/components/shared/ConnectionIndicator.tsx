@@ -1,83 +1,57 @@
 import { useEffect, useState } from "react";
-import { useLocation, matchPath } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useWorkerHealth, useWorkerUrl } from "@/features/job-details/hooks/useWorkerHealth";
 
 interface ConnectionIndicatorProps {
-  workerUrl: string;
-  isHealthy: boolean;
-  dataUpdatedAt?: number;
+  isInstalled?: boolean;
 }
 
 /**
- * Presentational indicator for the local Playwright automation agent health.
+ * Presentational indicator for the ApplyAI Browser Extension status.
  */
-export function ConnectionIndicator({ workerUrl, isHealthy, dataUpdatedAt }: ConnectionIndicatorProps) {
-  // Tick once a second so the "Last checked" relative time keeps advancing.
-  const [, forceTick] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => forceTick((n) => n + 1), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const secondsAgo = dataUpdatedAt
-    ? Math.max(0, Math.round((Date.now() - dataUpdatedAt) / 1000))
-    : null;
-
-  const statusLabel = !workerUrl
-    ? "Not configured"
-    : isHealthy
-      ? "Connected"
-      : dataUpdatedAt
-        ? "Unreachable"
-        : "Connecting…";
+export function ConnectionIndicator({ isInstalled = false }: ConnectionIndicatorProps) {
+  const statusLabel = isInstalled ? "Extension Active" : "Extension Ready";
 
   return (
     <div
       className="flex flex-col items-center gap-1 px-2 py-1.5 lg:items-stretch"
-      title={`Local Playwright Agent — ${statusLabel}`}
+      title={`ApplyAI Chrome Extension — ${statusLabel}`}
     >
       <span className="hidden font-mono text-[10px] tracking-wide text-sidebar-foreground/40 uppercase lg:block">
-        Local Playwright Agent
+        ApplyAI Extension
       </span>
       <div className="flex items-center gap-2 text-xs">
         <span
           className={cn(
             "size-1.5 shrink-0 rounded-full",
-            !workerUrl
-              ? "bg-zinc-600"
-              : isHealthy
-                ? "bg-emerald-500"
-                : dataUpdatedAt
-                  ? "bg-rose-500"
-                  : "bg-zinc-600"
+            isInstalled ? "bg-emerald-500" : "bg-sky-400"
           )}
         />
         <span className="hidden truncate text-sidebar-foreground/70 lg:inline">
           {statusLabel}
-          {secondsAgo !== null && (
-            <span className="text-sidebar-foreground/40"> · {secondsAgo}s ago</span>
-          )}
         </span>
       </div>
     </div>
   );
 }
 
-/** Connected wrapper: queries local agent health directly using TanStack Query. */
+/** Connected wrapper for Chrome Extension indicator */
 export function ConnectionIndicatorConnected() {
-  const [workerUrl] = useWorkerUrl();
-  const location = useLocation();
-  // Enable worker health polling ONLY when the user is inside a job detail page (/jobs/:id) or worker setup page (/install-worker)
-  const isWorkerPage =
-    matchPath("/jobs/:id", location.pathname) !== null || location.pathname === "/install-worker";
+  const [isInstalled, setIsInstalled] = useState(false);
 
-  const health = useWorkerHealth(workerUrl, isWorkerPage);
-  const isHealthy = health.data?.status === "ok";
-  const dataUpdatedAt = health.dataUpdatedAt || undefined;
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "APPLYAI_EXTENSION_INSTALLED" || event.data?.type === "APPLYAI_TASK_RESPONSE") {
+        setIsInstalled(true);
+      }
+    };
 
-  return (
-    <ConnectionIndicator workerUrl={workerUrl} isHealthy={isHealthy} dataUpdatedAt={dataUpdatedAt} />
-  );
+    window.addEventListener("message", handleMessage);
+    // Dispatch ping to test extension connection
+    window.postMessage({ type: "APPLYAI_PING" }, "*");
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  return <ConnectionIndicator isInstalled={isInstalled} />;
 }
 

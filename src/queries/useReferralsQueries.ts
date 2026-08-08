@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { referralsService } from "@/services/referralsService";
 import { tasksService } from "@/services/tasksService";
 import { queryKeys } from "@/queries/queryKeys";
-import type { ConnectReferralRequest, CreateReferralsRequest, UpdateReferralRequest } from "@/types/api";
+import type { CompleteLinkedinRequest, ConnectReferralRequest, CreateReferralsRequest, UpdateReferralRequest } from "@/types/api";
 
 export function useJobReferrals(jobId: string | undefined) {
   return useQuery({
@@ -63,6 +63,21 @@ export function useConnectReferral(jobId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.job(jobId) });
+    },
+  });
+}
+
+export function useCompleteReferral(jobId?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ referralId, payload }: { referralId: string; payload: CompleteLinkedinRequest }) =>
+      tasksService.completeReferral(referralId, payload),
+    onSuccess: () => {
+      if (jobId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.jobReferrals(jobId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.job(jobId) });
+      }
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
     },
   });
 }

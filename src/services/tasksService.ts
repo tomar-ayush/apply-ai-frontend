@@ -1,5 +1,7 @@
 import { apiClient } from "@/services/apiClient";
 import type {
+    CompleteLinkedinRequest,
+    CompleteLinkedinResponse,
     ConnectReferralRequest,
     ConnectReferralResponse,
     TaskResponse,
@@ -18,6 +20,16 @@ export const tasksService = {
     ): Promise<ConnectReferralResponse> {
         const { data } = await apiClient.post<ConnectReferralResponse>(
             `/tasks/referrals/${referralId}/connect`,
+            payload
+        );
+        return data;
+    },
+    async completeReferral(
+        referralId: string,
+        payload: CompleteLinkedinRequest
+    ): Promise<CompleteLinkedinResponse> {
+        const { data } = await apiClient.post<CompleteLinkedinResponse>(
+            `/tasks/referrals/${referralId}/complete`,
             payload
         );
         return data;
