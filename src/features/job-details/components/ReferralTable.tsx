@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, Trash2, Users, Plus, Copy, Check, Search } from "lucide-react";
+// import { Sparkles, Trash2, Users, Plus, Copy, Check, Search } from "lucide-react";
+import { Sparkles, Trash2, Users, Copy, Check, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
