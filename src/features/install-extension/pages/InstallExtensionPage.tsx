@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Download, ExternalLink, Puzzle, Check, Copy, Sparkles, Layers, ShieldCheck, ArrowRight, Laptop } from "lucide-react";
+import { Download, ExternalLink, Check, Copy, Puzzle, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 function CodeBlock({ code, label }: { code: string; label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -46,168 +48,208 @@ function CodeBlock({ code, label }: { code: string; label?: string }) {
   );
 }
 
+const STEPS = [
+  {
+    title: "Download & Unzip Archive",
+    description:
+      "Download the release zip and extract (unzip) its contents to a folder on your computer before proceeding.",
+    extra: "download" as const,
+  },
+  {
+    title: "Open Chrome Extensions",
+    description:
+      "Type the address below into your Chrome address bar and hit Enter. This opens Chrome's extension manager.",
+    extra: "code" as const,
+  },
+  {
+    title: "Enable Developer Mode",
+    description:
+      "Find the Developer mode toggle in the top-right corner of the Extensions page and flip it on. This lets Chrome load unpacked extensions.",
+    extra: "toggle" as const,
+  },
+  {
+    title: "Load Unpacked Extension",
+    description:
+      "Click \"Load unpacked\" in the top-left menu, then select the folder you unzipped in Step 1. Pin it to your toolbar!",
+    extra: "done" as const,
+  },
+];
+
 export function InstallExtensionPage() {
-  const downloadUrl = "https://github.com/tomar-ayush/applyai-assistant/archive/refs/tags/v0.0.0.zip";
+  const downloadUrl =
+    "https://github.com/tomar-ayush/applyai-assistant/archive/refs/tags/v0.0.0.zip";
   const githubUrl = "https://github.com/tomar-ayush/applyai-assistant";
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 p-4 md:p-8">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-primary/5 p-6 md:p-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              <Puzzle className="size-3.5" />
-              Chrome Extension Setup
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-              Install ApplyAI Chrome Extension
-            </h1>
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Automate LinkedIn networking and referral outreach directly in your Chrome browser with full session synchronization.
-            </p>
-          </div>
-          <div className="flex flex-wrap shrink-0 items-center gap-3">
-            <a
-              href={downloadUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow hover:bg-primary/90 transition-colors"
-            >
-              <Download className="size-4" />
-              Download v0.0.0 Zip
-            </a>
+    <div>
+      <PageHeader
+        title="Install Extension"
+        pill="Chrome"
+        actions={
+          <>
             <a
               href={githubUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              className={buttonVariants({ variant: "outline" })}
             >
-              <ExternalLink className="size-3.5" />
-              GitHub Repo
+              <ExternalLink className="size-4" />
+              GitHub
             </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Step by Step Installation Cards */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Sparkles className="size-4" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">Quick Installation Steps</h2>
-            <p className="text-xs text-muted-foreground">Follow these 4 simple steps to load the unpacked extension in Chrome.</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {/* Step 1 */}
-          <div className="space-y-3 rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                1
-              </div>
-              <h3 className="text-sm font-semibold text-foreground">Download &amp; Extract Zip</h3>
-            </div>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Download the release archive <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">v0.0.0.zip</code> and extract the contents to a folder on your computer.
-            </p>
             <a
               href={downloadUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+              className={buttonVariants({ variant: "default" })}
             >
-              <Download className="size-3.5" />
-              Download v0.0.0.zip
+              <Download className="size-4" />
+              Download v0.0.0
+            </a>
+          </>
+        }
+      />
+
+      <div className="space-y-10 p-6 md:p-8">
+        {/* Intro Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="rounded-2xl border border-border bg-card p-8 md:p-10"
+        >
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-3 max-w-xl">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background">
+                  <Puzzle className="size-6" />
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+                  ApplyAI Assistant
+                </h2>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                Our Chrome extension automates LinkedIn networking directly from your browser.
+                It sends personalized referral requests using your active session, with zero
+                external server access.
+              </p>
+            </div>
+            <a
+              href={downloadUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="group flex h-14 shrink-0 items-center gap-3 rounded-full bg-foreground pl-6 pr-2 text-sm font-bold text-background shadow-lg shadow-foreground/5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.97]"
+            >
+              Download Extension
+              <div className="flex size-10 items-center justify-center rounded-full bg-background text-foreground transition-transform duration-500 group-hover:translate-y-0.5">
+                <ArrowDown className="size-4" />
+              </div>
             </a>
           </div>
+        </motion.div>
 
-          {/* Step 2 */}
-          <div className="space-y-3 rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                2
-              </div>
-              <h3 className="text-sm font-semibold text-foreground">Open Chrome Extensions</h3>
-            </div>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Open Google Chrome and navigate to <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">chrome://extensions</code> in your address bar (or Edge: <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">edge://extensions</code>).
-            </p>
-            <CodeBlock code="chrome://extensions" />
-          </div>
+        {/* Steps */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-bold tracking-tight">Setup in 4 steps</h3>
 
-          {/* Step 3 */}
-          <div className="space-y-3 rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                3
-              </div>
-              <h3 className="text-sm font-semibold text-foreground">Enable Developer Mode</h3>
-            </div>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Toggle on the <span className="font-semibold text-foreground font-sans">Developer mode</span> switch located in the top-right corner of the Extensions page.
-            </p>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-2.5 text-xs text-muted-foreground">
-              <ShieldCheck className="size-4 text-emerald-500 shrink-0" />
-              <span>Developer mode allows loading local unpacked Chrome extensions securely.</span>
-            </div>
-          </div>
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {STEPS.map((step, i) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.15 + i * 0.1,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="group rounded-2xl border border-border bg-card p-6 md:p-8 transition-shadow duration-300 hover:shadow-md"
+              >
+                {/* Step Number */}
+                <div className="flex items-start gap-5">
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted text-xl font-black tabular-nums text-foreground">
+                    {i + 1}
+                  </span>
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <h4 className="text-base font-bold tracking-tight text-foreground">
+                      {step.title}
+                    </h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
 
-          {/* Step 4 */}
-          <div className="space-y-3 rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                4
-              </div>
-              <h3 className="text-sm font-semibold text-foreground">Load Unpacked Extension</h3>
-            </div>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Click the <span className="font-semibold text-foreground font-sans">"Load unpacked"</span> button in the top-left menu and select the unzipped <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">applyai-assistant-0.0.0</code> directory.
-            </p>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-2.5 text-xs text-muted-foreground">
-              <Layers className="size-4 text-sky-500 shrink-0" />
-              <span>Once loaded, pin ApplyAI Assistant to your toolbar for instant access!</span>
-            </div>
+                {/* Step-specific content */}
+                <div className="mt-5 pl-0 md:pl-[4.25rem]">
+                  {step.extra === "download" && (
+                    <a
+                      href={downloadUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-2.5 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted"
+                    >
+                      <Download className="size-4 text-muted-foreground" />
+                      applyai-assistant-v0.0.0.zip
+                    </a>
+                  )}
+                  {step.extra === "code" && (
+                    <div className="max-w-sm">
+                      <CodeBlock code="chrome://extensions" />
+                    </div>
+                  )}
+                  {step.extra === "toggle" && (
+                    <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
+                      <div className="h-5 w-9 rounded-full bg-emerald-500 relative">
+                        <div className="absolute right-0.5 top-0.5 size-4 rounded-full bg-white shadow-sm" />
+                      </div>
+                      <span className="text-sm font-medium text-foreground">Developer mode</span>
+                      <Check className="size-4 text-emerald-500 ml-auto" />
+                    </div>
+                  )}
+                  {step.extra === "done" && (
+                    <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+                      <Check className="size-4 text-emerald-500" />
+                      <span className="text-sm font-medium text-foreground">
+                        Pin it to your toolbar and you're all set
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Feature Highlights */}
-      <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <Laptop className="size-4 text-primary" />
-          Extension Features &amp; Capabilities
-        </h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 text-xs">
-          <div className="space-y-1.5 rounded-lg border border-border bg-muted/20 p-3.5">
-            <span className="font-semibold text-foreground flex items-center gap-1.5">
-              <ArrowRight className="size-3.5 text-emerald-500" />
-              Automated Connections
-            </span>
-            <p className="text-muted-foreground leading-relaxed">
-              Sends automated connection requests to target employees and recruiters directly on LinkedIn.
-            </p>
+        {/* What it does */}
+        <div className="rounded-2xl border border-border bg-card">
+          <div className="border-b border-border px-6 py-4 md:px-8">
+            <h3 className="text-base font-bold tracking-tight">What the extension does</h3>
           </div>
-          <div className="space-y-1.5 rounded-lg border border-border bg-muted/20 p-3.5">
-            <span className="font-semibold text-foreground flex items-center gap-1.5">
-              <ArrowRight className="size-3.5 text-emerald-500" />
-              Personalized Referral Notes
-            </span>
-            <p className="text-muted-foreground leading-relaxed">
-              Populates and attaches custom referral notes and greetings saved directly from your profile.
-            </p>
-          </div>
-          <div className="space-y-1.5 rounded-lg border border-border bg-muted/20 p-3.5">
-            <span className="font-semibold text-foreground flex items-center gap-1.5">
-              <ArrowRight className="size-3.5 text-emerald-500" />
-              100% Local Privacy
-            </span>
-            <p className="text-muted-foreground leading-relaxed">
-              Runs in your browser using your active LinkedIn session. No passwords or tokens sent to external servers.
-            </p>
+          <div className="divide-y divide-border">
+            {[
+              {
+                title: "Sends connection requests automatically",
+                desc: "Targets relevant employees and recruiters at your target company directly on LinkedIn.",
+              },
+              {
+                title: "Attaches personalized referral messages",
+                desc: "Each request includes a custom note generated from your profile and the target role.",
+              },
+              {
+                title: "Runs 100% in your browser",
+                desc: "Uses your active LinkedIn session. No passwords, API keys, or data ever leave your machine.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="flex flex-col gap-1 px-6 py-5 md:flex-row md:items-start md:gap-12 md:px-8"
+              >
+                <h4 className="text-sm font-semibold text-foreground md:w-64 md:shrink-0">
+                  {item.title}
+                </h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

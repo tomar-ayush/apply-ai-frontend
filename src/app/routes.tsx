@@ -2,8 +2,10 @@ import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
+import { useAuth } from "@/features/auth/AuthProvider";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
+import { LandingPage } from "@/features/landing/pages/LandingPage";
 import { AppShell } from "@/components/shared/AppShell";
 import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 import { JobsListPage } from "@/features/jobs/pages/JobsListPage";
@@ -21,14 +23,17 @@ const InstallExtensionPage = lazy(() =>
 );
 
 export function AppRoutes() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Routes>
+      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
-          <Route index element={<DashboardPage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
           <Route path="jobs" element={<JobsListPage />} />
           <Route
             path="jobs/:id"

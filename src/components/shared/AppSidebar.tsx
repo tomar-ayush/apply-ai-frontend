@@ -7,7 +7,7 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: LayoutGrid, end: true },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutGrid, end: false },
   { to: "/jobs", label: "Jobs", icon: Briefcase, end: false },
   { to: "/settings", label: "Settings", icon: Settings, end: false },
   { to: "/install-extension", label: "Install Extension", icon: Puzzle, end: false },
@@ -54,7 +54,7 @@ export function AppSidebar() {
           type="button"
           onClick={() => {
             auth.logout();
-            navigate("/login", { replace: true });
+            navigate("/", { replace: true });
           }}
           title="Log out"
           className="flex w-full items-center justify-center gap-2.5 px-4 py-2 text-left text-xs font-medium text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground lg:justify-start"
