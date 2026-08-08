@@ -262,6 +262,7 @@ export function ReferralTable({ jobId, referrals, isLoading, queries, company }:
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <p className="text-sm font-medium text-foreground">Referrals</p>
         <div className="flex items-center gap-2">
+          {/* 
           {queryList.length > 0 && (
             <Button size="sm" variant="outline" onClick={() => setQueriesOpen(true)}>
               <Copy className="size-3.5" />
@@ -272,6 +273,7 @@ export function ReferralTable({ jobId, referrals, isLoading, queries, company }:
             <Plus className="size-3.5" />
             Paste search results
           </Button>
+          */}
           <Button size="sm" variant="outline" onClick={handleGenerate} disabled={generateReferrals.isPending}>
             <Sparkles className="size-3.5" />
             {generateReferrals.isPending ? "Searching…" : referrals.length ? "Find more" : "Generate Referrals"}

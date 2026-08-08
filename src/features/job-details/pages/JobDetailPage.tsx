@@ -16,7 +16,7 @@ import { JDQuestionsPanel } from "@/features/job-details/components/JDQuestionsP
 import { ReferralTable } from "@/features/job-details/components/ReferralTable";
 import { ResumeSection } from "@/features/job-details/components/ResumeSection";
 import { ExtensionStatusCard } from "@/features/job-details/components/ExtensionStatusCard";
-import { WorkdayApplyCard } from "@/features/job-details/components/WorkdayApplyCard";
+// import { WorkdayApplyCard } from "@/features/job-details/components/WorkdayApplyCard";
 import { useJob, useJobFromList } from "@/queries/useJobsQueries";
 import { JobStatus } from "@/types/enums";
 import { useJobJd, useReparseJd } from "@/queries/useJobJdQueries";

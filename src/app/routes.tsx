@@ -16,8 +16,8 @@ const JobDetailPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import("@/features/settings/pages/SettingsPage").then((m) => ({ default: m.SettingsPage }))
 );
-const InstallWorkerPage = lazy(() =>
-  import("@/features/install-worker/pages/InstallWorkerPage").then((m) => ({ default: m.InstallWorkerPage }))
+const InstallExtensionPage = lazy(() =>
+  import("@/features/install-extension/pages/InstallExtensionPage").then((m) => ({ default: m.InstallExtensionPage }))
 );
 
 export function AppRoutes() {
@@ -47,13 +47,14 @@ export function AppRoutes() {
             }
           />
           <Route
-            path="install-worker"
+            path="install-extension"
             element={
               <Suspense fallback={null}>
-                <InstallWorkerPage />
+                <InstallExtensionPage />
               </Suspense>
             }
           />
+          <Route path="install-worker" element={<Navigate to="/install-extension" replace />} />
         </Route>
       </Route>
 

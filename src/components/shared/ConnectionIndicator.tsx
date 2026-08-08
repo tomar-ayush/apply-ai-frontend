@@ -9,7 +9,7 @@ interface ConnectionIndicatorProps {
  * Presentational indicator for the ApplyAI Browser Extension status.
  */
 export function ConnectionIndicator({ isInstalled = false }: ConnectionIndicatorProps) {
-  const statusLabel = isInstalled ? "Extension Active" : "Extension Ready";
+  const statusLabel = isInstalled ? "Connected" : "Not Connected";
 
   return (
     <div
@@ -23,7 +23,7 @@ export function ConnectionIndicator({ isInstalled = false }: ConnectionIndicator
         <span
           className={cn(
             "size-1.5 shrink-0 rounded-full",
-            isInstalled ? "bg-emerald-500" : "bg-sky-400"
+            isInstalled ? "bg-emerald-500" : "bg-rose-500"
           )}
         />
         <span className="hidden truncate text-sidebar-foreground/70 lg:inline">
