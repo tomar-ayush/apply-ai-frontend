@@ -13,20 +13,20 @@ export function PageHeader({ title, pill, actions, sticky = true, className }: P
   return (
     <header
       className={cn(
-        "z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 border-b border-border bg-background/95 px-4 py-3 md:px-6 md:py-4 backdrop-blur supports-backdrop-filter:bg-background/80",
+        "z-10 flex items-center justify-between gap-2 md:gap-4 border-b border-border bg-background/95 px-4 py-3 md:px-6 md:py-4 backdrop-blur supports-backdrop-filter:bg-background/80",
         sticky && "sticky top-0",
         className
       )}
     >
-      <div className="flex items-center gap-3 w-full sm:w-auto overflow-hidden">
+      <div className="flex items-center gap-2 overflow-hidden">
         <h1 className="truncate text-base font-medium text-foreground">{title}</h1>
         {pill && (
-          <span className="shrink-0 rounded-full border border-border px-2.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+          <span className="hidden shrink-0 rounded-full border border-border px-2.5 py-0.5 font-mono text-[11px] text-muted-foreground sm:inline-flex">
             {pill}
           </span>
         )}
       </div>
-      {actions && <div className="flex w-full shrink-0 items-center justify-between gap-2 sm:w-auto sm:justify-start">{actions}</div>}
+      {actions && <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">{actions}</div>}
     </header>
   );
 }

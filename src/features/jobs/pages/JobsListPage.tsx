@@ -80,9 +80,9 @@ export function JobsListPage() {
         title="Jobs"
         pill="All applications"
         actions={
-          <Button onClick={() => setAddJobOpen(true)}>
-            <Plus className="size-4" />
-            Add Job
+          <Button size="sm" onClick={() => setAddJobOpen(true)} className="px-2 sm:px-3">
+            <Plus className="size-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">Add Job</span>
           </Button>
         }
       />

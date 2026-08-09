@@ -1,5 +1,5 @@
 import { LayoutGrid, Briefcase, Settings, LogOut, Puzzle, MessageSquare } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { ConnectionIndicatorConnected } from "@/components/shared/ConnectionIndicator";
@@ -27,13 +27,13 @@ export function AppSidebar({ isMobile }: { isMobile?: boolean }) {
         isMobile ? "w-full border-r-0" : "hidden md:flex w-14 lg:w-56 border-r"
       )}
     >
-      <div className="flex items-center gap-2.5 px-3 py-4 lg:px-4">
+      <Link to="/dashboard" className="flex items-center gap-2.5 px-3 py-4 lg:px-4">
         <BrandMark />
         <div className={cn("min-w-0", isMobile ? "block" : "hidden lg:block")}>
           <p className="truncate text-sm font-medium text-sidebar-foreground">ApplyAI</p>
           <p className="font-mono text-[10px] text-sidebar-foreground/40">v0.1.0-alpha</p>
         </div>
-      </div>
+      </Link>
 
       <nav className="flex flex-col gap-0.5 px-2 py-2">
         {NAV_ITEMS.map((item) => (

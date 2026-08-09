@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { AppSidebar } from "@/components/shared/AppSidebar";
 import { ProductTour } from "@/components/shared/ProductTour";
@@ -19,10 +19,10 @@ export function AppShell() {
     <div className="flex flex-col md:flex-row h-svh overflow-hidden bg-background">
       {/* Mobile Header */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4 md:hidden">
-        <div className="flex items-center gap-2.5">
+        <Link to="/dashboard" className="flex items-center gap-2.5">
           <BrandMark />
           <span className="font-semibold tracking-tight text-foreground">ApplyAI</span>
-        </div>
+        </Link>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger className="shrink-0 -mr-2 inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
             <Menu className="size-5" />

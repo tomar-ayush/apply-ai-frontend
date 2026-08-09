@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ErrorBanner } from "@/components/shared/ErrorBanner";
@@ -94,11 +95,12 @@ export function JobDetailPage() {
                   onError: (error) => toast.error(getErrorMessage(error, "Could not re-parse this job description")),
                 })
               }
+              className="px-2 sm:px-3"
             >
-              <Sparkles className={reparse.isPending ? "size-3.5 animate-spin" : "size-3.5"} />
-              {reparse.isPending ? "Re-parsing…" : "AI Reparse"}
+              <Sparkles className={cn("size-3.5 sm:mr-1.5", reparse.isPending && "animate-spin")} />
+              <span className="hidden sm:inline">{reparse.isPending ? "Re-parsing…" : "AI Reparse"}</span>
             </Button>
-            <Link to="/jobs" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link to="/jobs" className="hidden sm:inline-block text-sm text-muted-foreground hover:text-foreground ml-2">
               ← All jobs
             </Link>
           </div>
