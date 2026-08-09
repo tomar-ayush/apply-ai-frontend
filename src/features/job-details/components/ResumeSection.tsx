@@ -55,25 +55,28 @@ export function ResumeSection({ jobId }: { jobId: string }) {
   return (
     <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
-        <p className="text-sm font-medium text-foreground">Resume</p>
-        <div className="flex gap-2">
+        <p className="text-sm font-medium text-foreground hidden sm:block">Resume</p>
+        <div className="flex flex-1 justify-end gap-1.5 sm:gap-2">
           <Button
             size="sm"
             variant="ghost"
             onClick={handleRefetch}
             disabled={originalQuery.isFetching || optimizedQuery.isFetching}
             title="Refetch resume PDFs"
+            className="px-2 sm:px-3"
           >
-            <RefreshCw className={cn("size-3.5", (originalQuery.isFetching || optimizedQuery.isFetching) && "animate-spin")} />
-            Refetch
+            <RefreshCw className={cn("size-3.5 sm:mr-1.5", (originalQuery.isFetching || optimizedQuery.isFetching) && "animate-spin")} />
+            <span className="hidden sm:inline">Refetch</span>
           </Button>
-          <Button size="sm" variant="outline" onClick={() => setUploadOpen(true)}>
-            <FileUp className="size-3.5" />
-            Upload LaTeX
+          <Button size="sm" variant="outline" onClick={() => setUploadOpen(true)} className="px-2 sm:px-3">
+            <FileUp className="size-3.5 sm:mr-1.5" />
+            <span className="hidden sm:inline">Upload LaTeX</span>
+            <span className="inline sm:hidden ml-1.5">Upload</span>
           </Button>
-          <Button size="sm" variant="outline" onClick={() => setGenerateOpen(true)} disabled={generateResume.isPending}>
-            <Sparkles className="size-3.5" />
-            {generateResume.isPending ? "Optimizing…" : "Generate Optimized Resume"}
+          <Button size="sm" variant="outline" onClick={() => setGenerateOpen(true)} disabled={generateResume.isPending} className="px-2 sm:px-3">
+            <Sparkles className="size-3.5 sm:mr-1.5" />
+            <span className="hidden lg:inline">{generateResume.isPending ? "Optimizing…" : "Generate Optimized Resume"}</span>
+            <span className="inline lg:hidden ml-1.5">{generateResume.isPending ? "Optimizing…" : "Generate"}</span>
           </Button>
         </div>
       </div>

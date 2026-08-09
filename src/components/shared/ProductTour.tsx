@@ -11,6 +11,7 @@ const TOUR_STEPS = [
     icon: Sparkles,
     title: "Welcome to ApplyAI",
     description: "Your personal networking and resume automation engine. Let's take a quick tour to get you set up and show you how to streamline your job search. We will guide you through setting up LLM credentials, managing your job pipeline, and generating tailored application assets.",
+    mobileDescription: "Welcome! Let's take a quick tour to get you set up and streamline your job search.",
     buttonText: "Set API Keys",
     nextPath: "/settings",
     position: "center"
@@ -20,6 +21,7 @@ const TOUR_STEPS = [
     icon: Settings,
     title: "Set your API Keys",
     description: "ApplyAI uses LLMs to tailor resumes and draft referral messages. Add your API key here to enable the automation engine.",
+    mobileDescription: "Add your API key here to enable the LLM automation engine.",
     buttonText: "Go to Jobs",
     nextPath: "/jobs",
     position: "top-right"
@@ -29,6 +31,7 @@ const TOUR_STEPS = [
     icon: Briefcase,
     title: "Your Pipeline",
     description: "This is your jobs pipeline. We've added a mock job for you to explore.",
+    mobileDescription: "Your jobs pipeline. Tap the demo job to explore the workspace.",
     buttonText: "Explore a Job",
     nextPath: "/jobs/demo",
     position: "bottom-right"
@@ -38,6 +41,7 @@ const TOUR_STEPS = [
     icon: FileText,
     title: "The Job Workspace",
     description: "Welcome to the Job Details workspace. Here is where the magic happens.",
+    mobileDescription: "The Job Details workspace. Here is where the magic happens.",
     buttonText: "Next",
     nextPath: "/jobs/demo",
     position: "bottom-right"
@@ -47,6 +51,7 @@ const TOUR_STEPS = [
     icon: FileText,
     title: "AI Job Summary",
     description: "We automatically parse the job description to extract the required skills, core responsibilities, and department info.",
+    mobileDescription: "We parse the job description to extract the core responsibilities.",
     buttonText: "Next",
     nextPath: "/jobs/demo",
     position: "bottom-right"
@@ -56,6 +61,7 @@ const TOUR_STEPS = [
     icon: FileText,
     title: "Application Questions",
     description: "ApplyAI automatically drafts answers to common application questions based on your background and the job requirements.",
+    mobileDescription: "We automatically draft answers to common application questions.",
     buttonText: "Next",
     nextPath: "/jobs/demo",
     position: "bottom-right"
@@ -65,6 +71,7 @@ const TOUR_STEPS = [
     icon: FileText,
     title: "Networking & Referrals",
     description: "ApplyAI finds employees at the company and drafts personalized LinkedIn connection messages for you.",
+    mobileDescription: "We draft personalized LinkedIn connection messages for you.",
     buttonText: "Next",
     nextPath: "/jobs/demo",
     position: "top-right"
@@ -74,6 +81,7 @@ const TOUR_STEPS = [
     icon: FileText,
     title: "Tailored Resume",
     description: "We generate a mathematically optimized LaTeX resume perfectly aligned with the job description.",
+    mobileDescription: "We generate an optimized LaTeX resume tailored for the job.",
     buttonText: "Finish Tour",
     nextPath: "/dashboard",
     position: "bottom-right"
@@ -200,8 +208,11 @@ export function ProductTour() {
                 <h3 className="mb-1.5 md:mb-2 text-base md:text-lg font-bold tracking-tight text-foreground">
                   {step.title}
                 </h3>
-                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed hidden sm:block">
                   {step.description}
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed block sm:hidden">
+                  {step.mobileDescription || step.description}
                 </p>
               </div>
 

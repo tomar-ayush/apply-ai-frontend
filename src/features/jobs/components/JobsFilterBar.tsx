@@ -47,46 +47,48 @@ export function JobsFilterBar({
         />
       </div>
 
-      <Select value={status} onValueChange={(v) => onStatusChange((v as JobStatus | null) ?? "ALL")}>
-        <SelectTrigger className="sm:w-44">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="ALL">Status: All</SelectItem>
-          {Object.values(JobStatus).map((s) => (
-            <SelectItem key={s} value={s}>
-              {JOB_STATUS_MAP[s].label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex w-full gap-2 overflow-x-auto sm:w-auto sm:overflow-visible">
+        <Select value={status} onValueChange={(v) => onStatusChange((v as JobStatus | null) ?? "ALL")}>
+          <SelectTrigger className="w-[140px] sm:w-44 shrink-0">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Status: All</SelectItem>
+            {Object.values(JobStatus).map((s) => (
+              <SelectItem key={s} value={s}>
+                {JOB_STATUS_MAP[s].label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Select value={company} onValueChange={(v) => onCompanyChange(v ?? "ALL")}>
-        <SelectTrigger className="sm:w-40">
-          <SelectValue placeholder="Company" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="ALL">Company: All</SelectItem>
-          {companies.map((c) => (
-            <SelectItem key={c} value={c}>
-              {c}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select value={company} onValueChange={(v) => onCompanyChange(v ?? "ALL")}>
+          <SelectTrigger className="w-[130px] sm:w-40 shrink-0">
+            <SelectValue placeholder="Company" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Company: All</SelectItem>
+            {companies.map((c) => (
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Select value={sort} onValueChange={(v) => onSortChange((v as SortOption | null) ?? "updated_desc")}>
-        <SelectTrigger className="sm:w-36">
-          <SelectValue placeholder="Sort" />
-        </SelectTrigger>
-        <SelectContent>
-          {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
-            <SelectItem key={key} value={key}>
-              Sort: {SORT_LABELS[key]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select value={sort} onValueChange={(v) => onSortChange((v as SortOption | null) ?? "updated_desc")}>
+          <SelectTrigger className="w-[130px] sm:w-36 shrink-0">
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+              <SelectItem key={key} value={key}>
+                Sort: {SORT_LABELS[key]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }
