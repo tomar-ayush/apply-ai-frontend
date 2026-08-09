@@ -15,16 +15,21 @@ const NAV_ITEMS = [
   { to: "/install-extension", label: "Install Extension", icon: Puzzle, end: false },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ isMobile }: { isMobile?: boolean }) {
   const auth = useAuth();
   const navigate = useNavigate();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   return (
-    <aside className="flex h-svh w-14 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:w-56">
+    <aside
+      className={cn(
+        "flex h-svh shrink-0 flex-col border-sidebar-border bg-sidebar text-sidebar-foreground",
+        isMobile ? "w-full border-r-0" : "hidden md:flex w-14 lg:w-56 border-r"
+      )}
+    >
       <div className="flex items-center gap-2.5 px-3 py-4 lg:px-4">
         <BrandMark />
-        <div className="hidden min-w-0 lg:block">
+        <div className={cn("min-w-0", isMobile ? "block" : "hidden lg:block")}>
           <p className="truncate text-sm font-medium text-sidebar-foreground">ApplyAI</p>
           <p className="font-mono text-[10px] text-sidebar-foreground/40">v0.1.0-alpha</p>
         </div>
@@ -39,7 +44,8 @@ export function AppSidebar() {
             title={item.label}
             className={({ isActive }) =>
               cn(
-                "flex items-center justify-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors lg:justify-start",
+                "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                isMobile ? "justify-start" : "justify-center lg:justify-start",
                 isActive
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
@@ -47,7 +53,7 @@ export function AppSidebar() {
             }
           >
             <item.icon className="size-4 shrink-0" />
-            <span className="hidden lg:inline">{item.label}</span>
+            <span className={cn(isMobile ? "inline" : "hidden lg:inline")}>{item.label}</span>
           </NavLink>
         ))}
       </nav>
@@ -57,10 +63,13 @@ export function AppSidebar() {
           type="button"
           onClick={() => setFeedbackOpen(true)}
           title="Share feedback"
-          className="flex w-full items-center justify-center gap-2.5 px-4 py-2 text-left text-xs font-medium text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground lg:justify-start"
+          className={cn(
+            "flex w-full items-center gap-2.5 px-4 py-2 text-left text-xs font-medium text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground",
+            isMobile ? "justify-start" : "justify-center lg:justify-start"
+          )}
         >
           <MessageSquare className="size-3.5" />
-          <span className="hidden lg:inline">Share feedback</span>
+          <span className={cn(isMobile ? "inline" : "hidden lg:inline")}>Share feedback</span>
         </button>
         <button
           type="button"
@@ -69,10 +78,13 @@ export function AppSidebar() {
             navigate("/", { replace: true });
           }}
           title="Log out"
-          className="flex w-full items-center justify-center gap-2.5 px-4 py-2 text-left text-xs font-medium text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground lg:justify-start"
+          className={cn(
+            "flex w-full items-center gap-2.5 px-4 py-2 text-left text-xs font-medium text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground",
+            isMobile ? "justify-start" : "justify-center lg:justify-start"
+          )}
         >
           <LogOut className="size-3.5" />
-          <span className="hidden lg:inline">Log out</span>
+          <span className={cn(isMobile ? "inline" : "hidden lg:inline")}>Log out</span>
         </button>
         <Separator className="bg-sidebar-border" />
         <ConnectionIndicatorConnected />

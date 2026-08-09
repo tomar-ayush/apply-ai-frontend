@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, Check, Sparkles, Settings, Briefcase, FileText } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Sparkles, Settings, Briefcase, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJobsList } from "@/queries/useJobsQueries";
 
@@ -83,7 +83,7 @@ const TOUR_STEPS = [
 export function ProductTour() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const jobsQuery = useJobsList();
   const [isDismissed, setIsDismissed] = useState(false);
   
@@ -99,6 +99,13 @@ export function ProductTour() {
   const step = TOUR_STEPS[currentStepIndex];
   const isLast = currentStepIndex === TOUR_STEPS.length - 1;
   const isFirst = currentStepIndex === 0;
+
+  const handleSkip = () => {
+    setIsDismissed(true);
+    const next = new URLSearchParams(params);
+    next.delete("tourStep");
+    setParams(next, { replace: true });
+  };
 
   const handleNext = () => {
     if (currentStepIndex === -1) return;
@@ -175,7 +182,16 @@ export function ProductTour() {
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="relative w-full max-w-sm pointer-events-auto"
           >
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-card/95 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-card/95 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-2 size-8 text-muted-foreground hover:bg-muted/50"
+                onClick={handleSkip}
+                title="Skip tour"
+              >
+                <X className="size-4" />
+              </Button>
               <div className="p-6">
                 <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <step.icon className="size-6" />
