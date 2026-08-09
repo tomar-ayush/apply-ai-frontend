@@ -22,7 +22,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <BrowserRouter>
         <AuthProvider>{children}</AuthProvider>
       </BrowserRouter>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" closeButton />
     </QueryClientProvider>
   );
 }

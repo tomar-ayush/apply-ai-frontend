@@ -128,7 +128,9 @@ export function JobDetailPage() {
 
           <div className="space-y-6">
             <JobTimeline job={job} />
-            <ExtensionStatusCard />
+            <div className="hidden sm:block">
+              <ExtensionStatusCard />
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-6">
