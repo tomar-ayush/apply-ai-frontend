@@ -4,7 +4,6 @@ import { Menu } from "lucide-react";
 import { AppSidebar } from "@/components/shared/AppSidebar";
 import { ProductTour } from "@/components/shared/ProductTour";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { BrandMark } from "@/components/shared/BrandMark";
 
 export function AppShell() {
