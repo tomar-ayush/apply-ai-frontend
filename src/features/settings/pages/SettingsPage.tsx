@@ -159,7 +159,7 @@ export function SettingsPage() {
         }
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-4 p-4 md:space-y-6 md:p-6">
         {meQuery.isError && (
           <ErrorBanner message={getErrorMessage(meQuery.error, "Could not load your profile.")} onRetry={() => meQuery.refetch()} />
         )}

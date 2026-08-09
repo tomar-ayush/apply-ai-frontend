@@ -174,8 +174,8 @@ export function LandingPage() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="mt-6 max-w-xl text-base text-muted-foreground leading-relaxed md:text-lg"
           >
-            ApplyAI writes targeted LaTeX resumes, sends personalized LinkedIn referral
-            requests, and tracks your entire pipeline. You focus on interviews.
+            ApplyAI writes targeted LaTeX resumes, drafts personalized LinkedIn referral
+            messages, and tracks your entire pipeline. You focus on interviews.
           </motion.p>
 
           <motion.div
@@ -268,7 +268,7 @@ export function LandingPage() {
                   <h3 className="text-xl font-semibold tracking-tight">Extension networks</h3>
                 </div>
                 <p className="text-muted-foreground leading-relaxed">
-                  The Chrome extension sends personalized referral messages on LinkedIn using your
+                  The Chrome extension drafts personalized referral messages for target connections on LinkedIn using your
                   active session. No API keys, no intermediary servers.
                 </p>
               </div>
@@ -311,7 +311,7 @@ export function LandingPage() {
               },
               {
                 title: "LinkedIn Referral Autopilot",
-                desc: "Our Chrome extension sends personalized connection requests and messages through your own browser session. Fully authenticated, fully yours.",
+                desc: "Our Chrome extension suggests target connections and drafts personalized messages through your own browser session. Fully authenticated, fully yours.",
               },
               {
                 title: "Job Pipeline Dashboard",

@@ -13,7 +13,7 @@ export function PageHeader({ title, pill, actions, sticky = true, className }: P
   return (
     <header
       className={cn(
-        "z-10 flex items-center justify-between gap-4 border-b border-border bg-background/95 px-6 py-4 backdrop-blur supports-backdrop-filter:bg-background/80",
+        "z-10 flex items-center justify-between gap-2 md:gap-4 border-b border-border bg-background/95 px-4 py-3 md:px-6 md:py-4 backdrop-blur supports-backdrop-filter:bg-background/80",
         sticky && "sticky top-0",
         className
       )}

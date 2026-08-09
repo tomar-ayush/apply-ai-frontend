@@ -109,7 +109,7 @@ export function InstallExtensionPage() {
         }
       />
 
-      <div className="space-y-10 p-6 md:p-8">
+      <div className="space-y-6 p-4 md:space-y-10 md:p-8">
         {/* Intro Banner */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -129,7 +129,7 @@ export function InstallExtensionPage() {
               </div>
               <p className="text-muted-foreground leading-relaxed">
                 Our Chrome extension automates LinkedIn networking directly from your browser.
-                It sends personalized referral requests using your active session, with zero
+                It suggests connections and drafts personalized referral requests using your active session, with zero
                 external server access.
               </p>
             </div>
@@ -228,12 +228,12 @@ export function InstallExtensionPage() {
           <div className="divide-y divide-border">
             {[
               {
-                title: "Sends connection requests automatically",
-                desc: "Targets relevant employees and recruiters at your target company directly on LinkedIn.",
+                title: "Suggests connections",
+                desc: "Helps you identify relevant employees and recruiters at your target company on LinkedIn.",
               },
               {
-                title: "Attaches personalized referral messages",
-                desc: "Each request includes a custom note generated from your profile and the target role.",
+                title: "Drafts personalized referral messages",
+                desc: "Provides a custom note draft generated from your profile and the target role.",
               },
               {
                 title: "Runs 100% in your browser",

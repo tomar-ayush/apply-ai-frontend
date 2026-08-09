@@ -81,7 +81,7 @@ export function JobsListPage() {
         }
       />
 
-      <div className="space-y-4 p-6">
+      <div className="space-y-4 p-4 md:space-y-6 md:p-6">
         {jobsQuery.isError && (
           <ErrorBanner
             message={getErrorMessage(jobsQuery.error, "Could not load your jobs.")}

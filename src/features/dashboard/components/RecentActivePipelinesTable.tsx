@@ -28,17 +28,18 @@ export function RecentActivePipelinesTable({ jobs, isLoading, onAddJob }: Recent
 
   const columns: DataTableColumn<JobDetailResponse>[] = [
     { key: "company", header: "Company", render: (job) => job.company || "—" },
-    { key: "role", header: "Role", render: (job) => job.role || "—" },
+    { key: "role", header: "Role", className: "hidden sm:table-cell", render: (job) => job.role || "—" },
     { key: "status", header: "Status", render: (job) => <StatusBadge kind="job" status={job.status} /> },
     {
       key: "updated_at",
       header: "Updated At",
+      className: "hidden md:table-cell",
       render: (job) => <span className="text-muted-foreground">{relativeTime(job.updated_at)}</span>,
     },
     {
       key: "action",
       header: "Action",
-      className: "text-right",
+      className: "hidden sm:table-cell text-right",
       render: () => (
         <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
           Manage <ArrowRight className="size-3.5" />
