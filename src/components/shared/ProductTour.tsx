@@ -155,10 +155,10 @@ export function ProductTour() {
   if (!isEmpty || isDismissed || currentStepIndex === -1) return null;
 
   const positionClass = step.position === "center" 
-    ? "items-center justify-center p-6" 
+    ? "items-center justify-center p-4 md:p-6" 
     : step.position === "top-right" 
-    ? "items-start justify-end p-6" 
-    : "items-end justify-end p-6";
+    ? "items-start justify-center md:justify-end p-4 pt-20 md:p-6" 
+    : "items-start md:items-end justify-center md:justify-end p-4 pt-20 md:p-6";
 
   return (
     <>
@@ -192,20 +192,20 @@ export function ProductTour() {
               >
                 <X className="size-4" />
               </Button>
-              <div className="p-6">
-                <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <step.icon className="size-6" />
+              <div className="p-4 md:p-6">
+                <div className="mb-3 md:mb-4 flex size-10 md:size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <step.icon className="size-5 md:size-6" />
                 </div>
                 
-                <h3 className="mb-2 text-lg font-bold tracking-tight text-foreground">
+                <h3 className="mb-1.5 md:mb-2 text-base md:text-lg font-bold tracking-tight text-foreground">
                   {step.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                   {step.description}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between border-t border-border bg-muted/20 px-6 py-4">
+              <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-3 md:px-6 md:py-4">
                 <div className="flex items-center gap-2">
                   {!isFirst && (
                     <Button variant="ghost" size="icon" className="size-7" onClick={handlePrev}>
