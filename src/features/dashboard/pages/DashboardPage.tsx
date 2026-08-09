@@ -10,12 +10,12 @@ import { useAutomationInsights } from "@/features/dashboard/hooks/useAutomationI
 import { StatsRow } from "@/features/dashboard/components/StatsRow";
 import { AutomationInsightsPanel } from "@/features/dashboard/components/AutomationInsightsPanel";
 import { RecentActivePipelinesTable } from "@/features/dashboard/components/RecentActivePipelinesTable";
-import { DashboardEmptyState } from "@/features/dashboard/components/DashboardEmptyState";
 import { AddJobDialog } from "@/features/jobs/components/AddJobDialog";
 import { getErrorMessage } from "@/lib/axios-error";
 
 export function DashboardPage() {
   const [addJobOpen, setAddJobOpen] = useState(false);
+  
   const jobsQuery = useJobsList();
   const jobs = jobsQuery.data;
 
@@ -43,21 +43,15 @@ export function DashboardPage() {
           />
         )}
 
-        {jobs && jobs.length === 0 && !jobsQuery.isLoading ? (
-          <DashboardEmptyState onAddJob={() => setAddJobOpen(true)} />
-        ) : (
-          <>
-            <StatsRow stats={stats} isLoading={jobsQuery.isLoading} />
+        <StatsRow stats={stats} isLoading={jobsQuery.isLoading} />
 
-            <AutomationInsightsPanel insights={insights} isLoading={jobsQuery.isLoading} />
+        <AutomationInsightsPanel insights={insights} isLoading={jobsQuery.isLoading} />
 
-            <RecentActivePipelinesTable
-              jobs={jobs ?? []}
-              isLoading={jobsQuery.isLoading}
-              onAddJob={() => setAddJobOpen(true)}
-            />
-          </>
-        )}
+        <RecentActivePipelinesTable
+          jobs={jobs ?? []}
+          isLoading={jobsQuery.isLoading}
+          onAddJob={() => setAddJobOpen(true)}
+        />
       </div>
 
       <AddJobDialog open={addJobOpen} onOpenChange={setAddJobOpen} />

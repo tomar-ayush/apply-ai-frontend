@@ -22,9 +22,16 @@ import { JobStatus } from "@/types/enums";
 import { useJobJd, useReparseJd } from "@/queries/useJobJdQueries";
 import { useJobReferrals } from "@/queries/useReferralsQueries";
 import { getErrorMessage } from "@/lib/axios-error";
+import { TourHighlight } from "@/components/shared/TourHighlight";
+
+import { DEMO_JOB, DEMO_JD, DEMO_REFERRALS } from "@/lib/demo-data";
 
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
+  
+  // DEMO MODE MOCKS
+  const isDemo = id === "demo";
+
   const jobQuery = useJob(id);
   // GET /jobs/{id} omits company/role/workday_job_id — pull them from the list
   // cache (JobDetailResponse) or fall back to the JD, which still carries them.
@@ -33,7 +40,7 @@ export function JobDetailPage() {
   const referralsQuery = useJobReferrals(id);
   const reparse = useReparseJd(id ?? "");
 
-  if (jobQuery.isLoading) {
+  if (jobQuery.isLoading && !isDemo) {
     return (
       <div>
         <PageHeader title="Job" pill="Workspace" />
@@ -42,7 +49,7 @@ export function JobDetailPage() {
     );
   }
 
-  if (jobQuery.isError) {
+  if (jobQuery.isError && !isDemo) {
     const notFound = isAxiosError(jobQuery.error) && jobQuery.error.response?.status === 404;
     return (
       <div>
@@ -57,12 +64,18 @@ export function JobDetailPage() {
     );
   }
 
-  const job = jobQuery.data;
+  const job = isDemo ? DEMO_JOB : jobQuery.data;
   if (!job) return null;
 
   // GET /jobs/{id} omits company/role — prefer the list cache, then the JD.
-  const company = listJob?.company ?? jdQuery.data?.company ?? null;
-  const role = listJob?.role ?? jdQuery.data?.role ?? null;
+  const company = isDemo ? DEMO_JD.company : listJob?.company ?? jdQuery.data?.company ?? null;
+  const role = isDemo ? DEMO_JD.role : listJob?.role ?? jdQuery.data?.role ?? null;
+  const jdData = isDemo ? DEMO_JD : jdQuery.data;
+  const referralsData = isDemo ? DEMO_REFERRALS : (referralsQuery.data ?? []);
+  const isJdLoading = isDemo ? false : jdQuery.isLoading;
+  const isReferralsLoading = isDemo ? false : referralsQuery.isLoading;
+  const isReferralsError = isDemo ? false : referralsQuery.isError;
+
 
   return (
     <div>
@@ -92,7 +105,9 @@ export function JobDetailPage() {
         }
       />
 
-      <JobHeader job={job} company={company} role={role} />
+      <TourHighlight activePath="/jobs/demo" stepIndex={3}>
+        <JobHeader job={job} company={company} role={role} />
+      </TourHighlight>
       <div className="p-6 space-y-6">
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -102,26 +117,33 @@ export function JobDetailPage() {
               <StatusOverrideControl jobId={job.id} status={job.status} referralReceived={job.referral_received} />
             </div>
 
-            <JDSummaryPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
-            {/* <JDQuestionsPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} /> */}
+            <TourHighlight activePath="/jobs/demo" stepIndex={4}>
+              <JDSummaryPanel jobStatus={job.status} jd={jdData} isLoading={isJdLoading} />
+            </TourHighlight>
+            {/* <JDQuestionsPanel jobStatus={job.status} jd={jdData} isLoading={isJdLoading} /> */}
+            <TourHighlight activePath="/jobs/demo" stepIndex={5}>
+              <JDQuestionsPanel jobStatus={job.status} jd={jdData} isLoading={isJdLoading} />
+            </TourHighlight>
           </div>
 
           <div className="space-y-6">
             <JobTimeline job={job} />
             <ExtensionStatusCard />
-            {/* <WorkdayApplyCard job={job} /> */}
           </div>
         </div>
         <div className="flex flex-col gap-6">
-          <ReferralTable jobId={job.id} referrals={referralsQuery.data ?? []} isLoading={referralsQuery.isLoading} queries={jdQuery.data?.extracted_department} company={company} />
-          {referralsQuery.isError && (
+          <TourHighlight activePath="/jobs/demo" stepIndex={6}>
+            <ReferralTable jobId={job.id} referrals={referralsData} isLoading={isReferralsLoading} queries={jdData?.extracted_department} company={company} />
+          </TourHighlight>
+          {isReferralsError && !isDemo && (
               <ErrorBanner message={getErrorMessage(referralsQuery.error, "Could not load referrals.")} onRetry={() => referralsQuery.refetch()} />
             )}
-          <ResumeSection jobId={job.id} />
+          <TourHighlight activePath="/jobs/demo" stepIndex={7}>
+            <ResumeSection jobId={job.id} />
+          </TourHighlight>
         </div>
-                    <JDQuestionsPanel jobStatus={job.status} jd={jdQuery.data} isLoading={jdQuery.isLoading} />
+        
       </div>
-
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ErrorBanner } from "@/components/shared/ErrorBanner";
+import { TourHighlight } from "@/components/shared/TourHighlight";
 import { Button } from "@/components/ui/button";
 import { useJobsList } from "@/queries/useJobsQueries";
 import { JobsFilterBar, type SortOption } from "@/features/jobs/components/JobsFilterBar";
@@ -12,6 +13,7 @@ import { AddJobDialog } from "@/features/jobs/components/AddJobDialog";
 import { getErrorMessage } from "@/lib/axios-error";
 import { JobStatus } from "@/types/enums";
 import { JOB_STATUS_MAP } from "@/lib/statusMaps";
+import { DEMO_JOBS_LIST } from "@/lib/demo-data";
 import type { JobDetailResponse } from "@/types/api";
 
 const EMPTY_JOBS: JobDetailResponse[] = [];
@@ -27,7 +29,11 @@ export function JobsListPage() {
   const search = params.get("q") ?? "";
 
   const jobsQuery = useJobsList(status === "ALL" ? undefined : status);
-  const jobs = jobsQuery.data ?? EMPTY_JOBS;
+  let jobs = jobsQuery.data ?? EMPTY_JOBS;
+  
+  if (jobsQuery.isSuccess && jobs.length === 0 && params.has("tourStep")) {
+    jobs = DEMO_JOBS_LIST as unknown as JobDetailResponse[];
+  }
 
   const updateParam = (key: string, value: string) => {
     const next = new URLSearchParams(params);
@@ -109,12 +115,14 @@ export function JobsListPage() {
             </div>
             <span className="font-mono text-[11px] text-muted-foreground">{visibleJobs.length} tracked jobs</span>
           </div>
-          <JobsTable
-            jobs={visibleJobs}
-            isLoading={jobsQuery.isLoading}
-            hasActiveFilters={hasActiveFilters}
-            onAddJob={() => setAddJobOpen(true)}
-          />
+          <TourHighlight activePath="/jobs" stepIndex={2}>
+            <JobsTable
+              jobs={visibleJobs}
+              isLoading={jobsQuery.isLoading}
+              hasActiveFilters={hasActiveFilters}
+              onAddJob={() => setAddJobOpen(true)}
+            />
+          </TourHighlight>
           <div className="flex justify-end border-t border-border px-4 py-3">
             <Button variant="ghost" size="sm" onClick={() => setAddJobOpen(true)}>
               <Plus className="size-4" />

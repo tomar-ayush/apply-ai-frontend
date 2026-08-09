@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ErrorBanner } from "@/components/shared/ErrorBanner";
+import { TourHighlight } from "@/components/shared/TourHighlight";
 import { Button } from "@/components/ui/button";
 import { useMe, useUpdateProfile } from "@/queries/useUsersQueries";
 import { LLM_PROVIDER_KEY_FIELD, settingsFormSchema, type SettingsFormValues } from "@/features/settings/schemas";
@@ -169,15 +170,17 @@ export function SettingsPage() {
             <ProfileSection form={form} email={meQuery.data.email} />
             <ResumeManagerSection />
             {/* <WorkdayProfileSection form={form} /> */}
-            <LLMSettingsSection
-              form={form}
-              hasKeyByProvider={{
-                [LLMProvider.OPENAI]: meQuery.data.has_openai_key,
-                [LLMProvider.ANTHROPIC]: meQuery.data.has_claude_key,
-                [LLMProvider.GEMINI]: meQuery.data.has_gemini_key,
-                [LLMProvider.OPENROUTER]: meQuery.data.has_openrouter_key,
-              }}
-            />
+            <TourHighlight activePath="/settings" stepIndex={1}>
+              <LLMSettingsSection
+                form={form}
+                hasKeyByProvider={{
+                  [LLMProvider.OPENAI]: meQuery.data.has_openai_key,
+                  [LLMProvider.ANTHROPIC]: meQuery.data.has_claude_key,
+                  [LLMProvider.GEMINI]: meQuery.data.has_gemini_key,
+                  [LLMProvider.OPENROUTER]: meQuery.data.has_openrouter_key,
+                }}
+              />
+            </TourHighlight>
           </form>
         )}
       </div>
