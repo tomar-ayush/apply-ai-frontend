@@ -77,7 +77,7 @@ const STEPS = [
 
 export function InstallExtensionPage() {
   const downloadUrl =
-    "https://github.com/tomar-ayush/applyai-assistant/archive/refs/tags/v1.1.1.zip";
+    "https://github.com/tomar-ayush/applyai-assistant/archive/refs/tags/v1.2.0.zip";
   const githubUrl = "https://github.com/tomar-ayush/applyai-assistant";
 
   return (
@@ -103,7 +103,7 @@ export function InstallExtensionPage() {
               className={buttonVariants({ variant: "default" })}
             >
               <Download className="size-4" />
-              Download v1.1.1
+              Download v1.2.0
             </a>
           </>
         }
@@ -189,7 +189,7 @@ export function InstallExtensionPage() {
                       className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-4 py-2.5 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted"
                     >
                       <Download className="size-4 text-muted-foreground" />
-                      applyai-assistant-v1.1.1.zip
+                      applyai-assistant-v1.2.0.zip
                     </a>
                   )}
                   {step.extra === "code" && (
