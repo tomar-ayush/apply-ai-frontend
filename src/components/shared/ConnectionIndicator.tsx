@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { useMe } from "@/queries/useUsersQueries";
 
 interface ConnectionIndicatorProps {
   isInstalled?: boolean;
@@ -37,20 +39,45 @@ export function ConnectionIndicator({ isInstalled = false }: ConnectionIndicator
 /** Connected wrapper for Chrome Extension indicator */
 export function ConnectionIndicatorConnected() {
   const [isInstalled, setIsInstalled] = useState(false);
+  const { token } = useAuth();
+  const { data: me } = useMe(!!token);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === "APPLYAI_EXTENSION_INSTALLED" || event.data?.type === "APPLYAI_TASK_RESPONSE") {
+      if (
+        event.data?.type === "APPLYAI_EXTENSION_INSTALLED" ||
+        event.data?.type === "APPLYAI_TASK_RESPONSE"
+      ) {
         setIsInstalled(true);
       }
     };
 
     window.addEventListener("message", handleMessage);
     // Dispatch ping to test extension connection
-    window.postMessage({ type: "APPLYAI_PING" }, "*");
+    window.postMessage({ type: "APPLYAI_PING" }, window.location.origin);
 
     return () => window.removeEventListener("message", handleMessage);
   }, []);
+
+  // Automatically sync auth to extension when extension is detected and user is logged in
+  useEffect(() => {
+    if (isInstalled && token && me) {
+      console.log("[DEBUG] Auto-syncing auth credentials to browser extension:", {
+        userId: me.id,
+        userEmail: me.email,
+      });
+      window.postMessage(
+        {
+          type: "APPLYAI_SYNC_AUTH",
+          token: token,
+          userId: me.id,
+          userEmail: me.email,
+          callbackUrl: import.meta.env.VITE_BACKEND_API_BASE_URL || window.location.origin,
+        },
+        window.location.origin
+      );
+    }
+  }, [isInstalled, token, me]);
 
   return <ConnectionIndicator isInstalled={isInstalled} />;
 }
