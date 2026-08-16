@@ -16,7 +16,7 @@ export const jobsService = {
   async create(workday_url: string, ai: boolean): Promise<JobDetailResponse> {
     console.debug("[debug][jobsService.create] workday_url", workday_url, "ai", ai);
 
-    const { data } = await apiClient.post<JobDetailResponse>("/jobs", { workday_url, ai });
+    const { data } = await apiClient.post<JobDetailResponse>("/jobs", { workday_url, ai, applied: false });
     return data;
   },
   async remove(id: string): Promise<void> {
