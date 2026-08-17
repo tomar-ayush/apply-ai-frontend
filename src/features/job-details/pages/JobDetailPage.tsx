@@ -143,7 +143,7 @@ export function JobDetailPage() {
               <ErrorBanner message={getErrorMessage(referralsQuery.error, "Could not load referrals.")} onRetry={() => referralsQuery.refetch()} />
             )}
           <TourHighlight activePath="/jobs/demo" stepIndex={7}>
-            <ResumeSection jobId={job.id} />
+            <ResumeSection jobId={job.id} missingKeywords={jdData?.missing_keywords} />
           </TourHighlight>
         </div>
         

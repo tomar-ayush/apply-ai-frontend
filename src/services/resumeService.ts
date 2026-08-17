@@ -29,11 +29,13 @@ export const resumeService = {
     return data;
   },
 
-  /** Step 4: generate the AI-optimized resume (server-side LaTeX -> PDF). */
-  async generate(jobId: string, sections: string[]): Promise<GenerateResumeResponse> {
-    const { data } = await apiClient.post<GenerateResumeResponse>(`/resumes/generate/${jobId}`, {
-      sections,
-    });
+  async preview(jobId: string, request: import("@/types/api").PreviewRequest): Promise<import("@/types/api").PreviewResponse> {
+    const { data } = await apiClient.post<import("@/types/api").PreviewResponse>(`/resumes/preview/${jobId}`, request);
+    return data;
+  },
+
+  async finalizeAi(jobId: string, request: import("@/types/api").FinalizeRequest): Promise<import("@/types/api").FinalizeResponse> {
+    const { data } = await apiClient.post<import("@/types/api").FinalizeResponse>(`/resumes/finalize-ai/${jobId}`, request);
     return data;
   },
 

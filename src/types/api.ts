@@ -133,6 +133,7 @@ export interface JobJDResponse {
   extracted_department: string[] | null;
   llm_summary: string | null;
   learning: Record<string, string[]> | null;
+  missing_keywords: string[] | null;
   created_at: string;
 }
 
@@ -223,4 +224,43 @@ export interface TaskResponse {
   error_message: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type ResumeSection = "professional_summary" | "skills" | "work_experience" | "projects" | "education";
+
+export interface PreviewRequest {
+  sections: ResumeSection[];
+  extra_keywords?: string[] | null;
+}
+
+export interface BulletChange {
+  change_id: string;
+  section: string;
+  original_text: string;
+  optimized_text: string;
+  change_type: "modified" | "added" | "removed" | "unchanged";
+}
+
+export interface SectionDiff {
+  section_key: string;
+  section_title: string;
+  changes: BulletChange[];
+}
+
+export interface PreviewResponse {
+  preview_id: string;
+  sections: SectionDiff[];
+  expires_at: string;
+}
+
+export interface FinalizeRequest {
+  preview_id: string;
+  accepted_change_ids: string[];
+}
+
+export interface FinalizeResponse {
+  download_url: string | null;
+  validated: boolean;
+  accepted_count: number;
+  rejected_count: number;
 }

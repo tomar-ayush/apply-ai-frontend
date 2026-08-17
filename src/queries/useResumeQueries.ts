@@ -34,20 +34,31 @@ export function useUploadLatex() {
   });
 }
 
-export function useGenerateResume(jobId: string) {
+export function usePreviewResume(jobId: string) {
+  return useMutation({
+    mutationFn: (request: import("@/types/api").PreviewRequest) => resumeService.preview(jobId, request),
+  });
+}
+
+export function useFinalizeAi(jobId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (sections: string[]) => resumeService.generate(jobId, sections),
+    mutationFn: (request: import("@/types/api").FinalizeRequest) => resumeService.finalizeAi(jobId, request),
     onMutate: async () => {
       // Cancel any outgoing refetches for this job's optimized resume so they don't overwrite our null state
       await queryClient.cancelQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
       // Immediately clear cached optimized resume for this job so previous diff is invalidated
       queryClient.setQueryData(queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED), null);
     },
-    onSuccess: () => {
-      // Fetch the new optimized resume copy now that generation has finished
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
+    onSuccess: (data) => {
+      // Directly update the query cache with the POST response (download_url & message)
+      queryClient.setQueryData(queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED), {
+        version: ResumeVersion.OPTIMIZED,
+        download_url: data.download_url,
+        message: "AI changes successfully applied.",
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.job(jobId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
     },
     onError: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobResume(jobId, ResumeVersion.OPTIMIZED) });
